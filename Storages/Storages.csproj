@@ -8,8 +8,6 @@
 
     <ItemGroup>
       <Folder Include="DocumentStorage\" />
-      <Folder Include="EntitiesStorage\" />
-      <Folder Include="FileStorage\" />
       <Folder Include="Mocks\" />
     </ItemGroup>
 
