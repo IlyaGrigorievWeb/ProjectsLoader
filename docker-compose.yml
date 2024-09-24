@@ -1,0 +1,6 @@
+﻿services:
+  projectsloader:
+    image: projectsloader
+    build:
+      context: .
+      dockerfile: ProjectsLoader/Dockerfile
