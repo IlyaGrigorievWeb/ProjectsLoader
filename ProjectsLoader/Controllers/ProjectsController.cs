@@ -23,7 +23,7 @@ public class ProjectsController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Route("GetGitHubProject")]
-    public async Task<GitHubProject> GetGitHubProject(string id)
+    public async Task<GitHubProject> GetGitHubProject(Guid id)
     {
         return await _gitHubService.GetGitHubProject(id);
     }

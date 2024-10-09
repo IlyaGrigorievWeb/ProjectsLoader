@@ -1,0 +1,16 @@
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\bin\Debug\net8.0\Storages.deps.json
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\bin\Debug\net8.0\Storages.dll
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\bin\Debug\net8.0\Storages.pdb
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\bin\Debug\net8.0\Contracts.dll
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\bin\Debug\net8.0\Contracts.pdb
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\obj\Debug\net8.0\Storages.csproj.AssemblyReference.cache
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\obj\Debug\net8.0\Storages.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\obj\Debug\net8.0\Storages.AssemblyInfoInputs.cache
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\obj\Debug\net8.0\Storages.AssemblyInfo.cs
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\obj\Debug\net8.0\Storages.csproj.CoreCompileInputs.cache
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\obj\Debug\net8.0\Storages.sourcelink.json
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\obj\Debug\net8.0\Storages.csproj.Up2Date
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\obj\Debug\net8.0\Storages.dll
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\obj\Debug\net8.0\refint\Storages.dll
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\obj\Debug\net8.0\Storages.pdb
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Storages\obj\Debug\net8.0\ref\Storages.dll

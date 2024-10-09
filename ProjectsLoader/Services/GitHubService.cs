@@ -1,6 +1,8 @@
 ﻿using Contracts.Entities;
 using Contracts.Interfaces;
 using HtmlAgilityPack;
+using Microsoft.EntityFrameworkCore;
+using Storages.EntitiesStorage;
 using System.Net.Http;
 
 namespace ProjectsLoader.Services;
@@ -11,7 +13,7 @@ public class GitHubService
     private readonly PostgresContext _context;
     private readonly HttpClient _httpClient;
 
-    public GitHubService() 
+    public GitHubService(PostgresContext context) 
     {
         _context = context;
         _httpClient = new HttpClient();
@@ -22,9 +24,9 @@ public class GitHubService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<GitHubProject> GetGitHubProject(string id) 
+    public async Task<GitHubProject> GetGitHubProject(Guid id) 
     {
-        return await _context.GitHubProject.Where(x => x.Id == id);
+        return await _context.GitHubProjects.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
 
     /// <summary>
@@ -34,7 +36,7 @@ public class GitHubService
     /// <returns></returns>
     public async Task<List<GitHubProject>> GetAllGitHubProject(WebFrameworks framework) 
     {
-        return await _context.GitHubProject.Where(x => x.WebFramework == framework).ToListAsync();
+        return _context.GitHubProjects.Where(x => x.WebFramework == framework).ToList();
     }
 
     /// <summary>
@@ -95,14 +97,14 @@ public class GitHubService
     /// <exception cref="Exception"></exception>
     public async Task<bool> SaveMetaInfoByURL(string url) 
     {
-        var metaData = GetMetaInfoByURL(url);
+        var metaData = await GetMetaInfoByURL(url);
 
         if (metaData == null) 
         {
             throw new Exception("Failed to get metadata");
         }
 
-        _context.GitHubProject.Add(metaData);
+        _context.GitHubProjects.Add(metaData);
 
         await _context.SaveChangesAsync();
 
@@ -122,7 +124,7 @@ public class GitHubService
             throw new Exception("Failed to get metadata");
         }
 
-        _context.GitHubProject.Add(metaData);
+        _context.GitHubProjects.Add(metaData);
 
         await _context.SaveChangesAsync();
 
@@ -137,16 +139,16 @@ public class GitHubService
     /// <exception cref="Exception"></exception>
     public async Task<bool> UpdateMetaInfoByURL(string url) 
     {
-        var newMetaData = GetMetaInfoByURL(url);
+        var newMetaData = await GetMetaInfoByURL(url);
 
         if (newMetaData == null)
         {
             throw new Exception("Failed to get metadata");
         }
 
-        var existingMetaData = _context.GitHubProject
+        var existingMetaData = _context.GitHubProjects
             .Where(x => x.Id == newMetaData.Id)
-            .FirstOrDefaultAsync();
+            .FirstOrDefault();
 
         bool hasChanges = false;
 
@@ -189,16 +191,16 @@ public class GitHubService
             return false;
         }
 
-        var existingMetaData = await _context.GitHubProject
+        var existingMetaData = _context.GitHubProjects
             .Where(x => x.Id == id)
-            .FirstOrDefaultAsync();
+            .FirstOrDefault();
 
         if (existingMetaData == null)
         {
             return false;
         }
 
-        _context.GitHubProject.Remove(existingMetaData);
+        _context.GitHubProjects.Remove(existingMetaData);
 
         await _context.SaveChangesAsync();
 

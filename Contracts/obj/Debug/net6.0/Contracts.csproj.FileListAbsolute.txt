@@ -1,0 +1,12 @@
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\bin\Debug\net6.0\Contracts.deps.json
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\bin\Debug\net6.0\Contracts.dll
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\bin\Debug\net6.0\Contracts.pdb
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\obj\Debug\net6.0\Contracts.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\obj\Debug\net6.0\Contracts.AssemblyInfoInputs.cache
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\obj\Debug\net6.0\Contracts.AssemblyInfo.cs
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\obj\Debug\net6.0\Contracts.csproj.CoreCompileInputs.cache
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\obj\Debug\net6.0\Contracts.sourcelink.json
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\obj\Debug\net6.0\Contracts.dll
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\obj\Debug\net6.0\refint\Contracts.dll
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\obj\Debug\net6.0\Contracts.pdb
+C:\Users\Moloto_off\source\repos\ProjectsLoader\Contracts\obj\Debug\net6.0\ref\Contracts.dll

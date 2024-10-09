@@ -1,7 +1,28 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Moloto_off\\source\\repos\\ProjectsLoader\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A7DD8609-164B-4EF7-84C6-60FF25DE25CB}|ProjectsLoader\\ProjectsLoader.csproj|c:\\users\\moloto_off\\source\\repos\\projectsloader\\projectsloader\\services\\githubservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A7DD8609-164B-4EF7-84C6-60FF25DE25CB}|ProjectsLoader\\ProjectsLoader.csproj|solutionrelative:projectsloader\\services\\githubservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D4391FB9-09DF-4C78-A8FF-766040C74579}|Contracts\\Contracts.csproj|c:\\users\\moloto_off\\source\\repos\\projectsloader\\contracts\\entities\\githubproject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D4391FB9-09DF-4C78-A8FF-766040C74579}|Contracts\\Contracts.csproj|solutionrelative:contracts\\entities\\githubproject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E16A71F7-A4F8-44EF-8AA2-4CF03CB15BA6}|Storages\\Storages.csproj|c:\\users\\moloto_off\\source\\repos\\projectsloader\\storages\\entitiesstorage\\postgrescontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E16A71F7-A4F8-44EF-8AA2-4CF03CB15BA6}|Storages\\Storages.csproj|solutionrelative:storages\\entitiesstorage\\postgrescontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A7DD8609-164B-4EF7-84C6-60FF25DE25CB}|ProjectsLoader\\ProjectsLoader.csproj|c:\\users\\moloto_off\\source\\repos\\projectsloader\\projectsloader\\controllers\\projectscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A7DD8609-164B-4EF7-84C6-60FF25DE25CB}|ProjectsLoader\\ProjectsLoader.csproj|solutionrelative:projectsloader\\controllers\\projectscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A7DD8609-164B-4EF7-84C6-60FF25DE25CB}|ProjectsLoader\\ProjectsLoader.csproj|c:\\users\\moloto_off\\source\\repos\\projectsloader\\projectsloader\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A7DD8609-164B-4EF7-84C6-60FF25DE25CB}|ProjectsLoader\\ProjectsLoader.csproj|solutionrelative:projectsloader\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,11 +30,76 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Moloto_off\\source\\repos\\ProjectsLoader\\ProjectsLoader\\Program.cs",
+              "RelativeDocumentMoniker": "ProjectsLoader\\Program.cs",
+              "ToolTip": "C:\\Users\\Moloto_off\\source\\repos\\ProjectsLoader\\ProjectsLoader\\Program.cs",
+              "RelativeToolTip": "ProjectsLoader\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-08T18:05:05.794Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ProjectsController.cs",
+              "DocumentMoniker": "C:\\Users\\Moloto_off\\source\\repos\\ProjectsLoader\\ProjectsLoader\\Controllers\\ProjectsController.cs",
+              "RelativeDocumentMoniker": "ProjectsLoader\\Controllers\\ProjectsController.cs",
+              "ToolTip": "C:\\Users\\Moloto_off\\source\\repos\\ProjectsLoader\\ProjectsLoader\\Controllers\\ProjectsController.cs",
+              "RelativeToolTip": "ProjectsLoader\\Controllers\\ProjectsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-25T20:07:17.371Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PostgresContext.cs",
+              "DocumentMoniker": "C:\\Users\\Moloto_off\\source\\repos\\ProjectsLoader\\Storages\\EntitiesStorage\\PostgresContext.cs",
+              "RelativeDocumentMoniker": "Storages\\EntitiesStorage\\PostgresContext.cs",
+              "ToolTip": "C:\\Users\\Moloto_off\\source\\repos\\ProjectsLoader\\Storages\\EntitiesStorage\\PostgresContext.cs",
+              "RelativeToolTip": "Storages\\EntitiesStorage\\PostgresContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-25T17:44:02.995Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GitHubService.cs",
+              "DocumentMoniker": "C:\\Users\\Moloto_off\\source\\repos\\ProjectsLoader\\ProjectsLoader\\Services\\GitHubService.cs",
+              "RelativeDocumentMoniker": "ProjectsLoader\\Services\\GitHubService.cs",
+              "ToolTip": "C:\\Users\\Moloto_off\\source\\repos\\ProjectsLoader\\ProjectsLoader\\Services\\GitHubService.cs",
+              "RelativeToolTip": "ProjectsLoader\\Services\\GitHubService.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAwAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-08T17:48:16.738Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "GitHubProject.cs",
+              "DocumentMoniker": "C:\\Users\\Moloto_off\\source\\repos\\ProjectsLoader\\Contracts\\Entities\\GitHubProject.cs",
+              "RelativeDocumentMoniker": "Contracts\\Entities\\GitHubProject.cs",
+              "ToolTip": "C:\\Users\\Moloto_off\\source\\repos\\ProjectsLoader\\Contracts\\Entities\\GitHubProject.cs",
+              "RelativeToolTip": "Contracts\\Entities\\GitHubProject.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAQAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-25T17:40:10.96Z",
+              "EditorCaption": ""
             }
           ]
         }
