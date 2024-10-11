@@ -1,6 +1,18 @@
-﻿namespace Storages.EntitiesStorage;
+﻿using Contracts.Entities;
+using Microsoft.EntityFrameworkCore;
 
-public class PostgresContext
+namespace Storages.EntitiesStorage;
+public class PostgresContext : DbContext
 {
-    
+    public DbSet<GitHubProject> GitHubProjects { get; set; }
+
+    public PostgresContext(DbContextOptions<PostgresContext> options) : base(options)
+    {
+        //Database.EnsureCreated();
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+    }
+
 }
