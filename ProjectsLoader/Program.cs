@@ -1,7 +1,7 @@
-using Microsoft.Extensions.Configuration;
 using ProjectsLoader.Services;
 using Storages.EntitiesStorage;
 using Microsoft.EntityFrameworkCore;
+using Contracts.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<GitHubService>();
-
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 builder.Services.AddDbContext<PostgresContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
