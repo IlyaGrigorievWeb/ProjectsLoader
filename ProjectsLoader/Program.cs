@@ -63,7 +63,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Добавление сервисов в контейнер
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<GitHubService>();
 builder.Services.AddScoped<UserService>();
