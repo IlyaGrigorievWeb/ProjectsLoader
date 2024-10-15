@@ -1,10 +1,12 @@
 ﻿using Contracts.Entities;
 using Contracts.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectsLoader.Services;
 
 namespace ProjectsLoader.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class ProjectsController : ControllerBase
