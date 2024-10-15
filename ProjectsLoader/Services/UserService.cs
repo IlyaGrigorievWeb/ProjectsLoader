@@ -27,6 +27,11 @@ namespace ProjectsLoader.Services
             return await _context.Users.Where(x => x.Id == id).FirstOrDefaultAsync();
         }
 
+        public async Task<User> GetUserByLogin(string login) 
+        {
+            return await _context.Users.Where(x => x.Login == login).FirstOrDefaultAsync();
+        }
+
         public async Task<bool> CreateUser(User user)
         {
             var passwordHash = _passwordHasher.Hash(user.Password);

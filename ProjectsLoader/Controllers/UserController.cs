@@ -1,9 +1,11 @@
 ﻿using Contracts.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectsLoader.Services;
 
 namespace ProjectsLoader.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class UserController : ControllerBase
@@ -27,6 +29,13 @@ namespace ProjectsLoader.Controllers
         public async Task<User> GetUserById(Guid id)
         {
             return await _userService.GetUserById(id);
+        }
+
+        [HttpGet]
+        [Route("GetUserByLogin")]
+        public async Task<User> GetUserByLogin(string login)
+        {
+            return await _userService.GetUserByLogin(login);
         }
 
         [HttpPost]
