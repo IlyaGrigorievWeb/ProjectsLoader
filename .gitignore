@@ -8,3 +8,4 @@ riderModule.iml
 /.vs
 .vs
 /ProjectsLoader/ProjectsLoader.csproj.user
+/ProjectsLoader/appsettings.Production.json
