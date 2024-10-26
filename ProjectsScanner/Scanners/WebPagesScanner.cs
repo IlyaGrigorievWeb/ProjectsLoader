@@ -1,6 +1,16 @@
-﻿namespace ProjectsScanner.Scanners;
+﻿using Contracts.Interfaces;
 
-public class WebPagesScanner
+namespace ProjectsScanner.Scanners;
+
+public class WebPagesScanner : IProjectScanner
 {
-    
+    public string getProjectLanguage()
+    {
+        throw new NotImplementedException();
+    }
+
+    public WebFrameworks getProjectWebFramework()
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -16,4 +16,6 @@ public class GitHubProject
     public int Stars { get; set; }
 
     public DateTime CreationDate { get; set; }
+
+    public string DefaultBranch { get; set; }
 }
