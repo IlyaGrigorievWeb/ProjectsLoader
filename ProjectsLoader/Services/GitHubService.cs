@@ -2,6 +2,7 @@
 using Contracts.Interfaces;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
+using ProjectsScanner.Scanners;
 using Storages.EntitiesStorage;
 using System.Globalization;
 
@@ -11,13 +12,12 @@ public class GitHubService
 {
 
     private readonly PostgresContext _context;
-    private readonly HttpClient _httpClient;
+    private readonly WebPagesScanner _webPagesScanner;
 
-    public GitHubService(PostgresContext context)
+    public GitHubService(PostgresContext context, WebPagesScanner webPagesScanner)
     {
         _context = context;
-        _httpClient = new HttpClient();
-        _httpClient.BaseAddress = new Uri("https://github.com/");
+        _webPagesScanner = webPagesScanner;
     }
 
     /// <summary>
@@ -41,72 +41,6 @@ public class GitHubService
     }
 
     /// <summary>
-    /// Get metadate by URL
-    /// </summary>
-    /// <param name="url"></param>
-    /// <returns></returns>
-    public async Task<GitHubProject> GetMetaInfoByURL(string url)
-    {
-        string urlPostfix = url.Replace("https://github.com/", "");
-
-        var response = await _httpClient.GetAsync(urlPostfix);
-        response.EnsureSuccessStatusCode();
-        var pageContent = await response.Content.ReadAsStringAsync();
-
-        var htmlDoc = new HtmlDocument();
-        htmlDoc.LoadHtml(pageContent);
-
-        var starsNode = htmlDoc.DocumentNode.SelectSingleNode("//a[contains(@href, '/stargazers')]/strong");
-        var starsText = starsNode?.InnerText.Trim();
-        int stars = 0;
-
-        if (!string.IsNullOrEmpty(starsText))
-        {
-            if (starsText.EndsWith("k"))
-            {
-                starsText = starsText.Replace("k", "").Trim();
-                if (double.TryParse(starsText, NumberStyles.Any, CultureInfo.InvariantCulture, out var starCount))
-                {
-                    stars = (int)(starCount * 1000);
-                }
-            }
-            else
-            {
-                stars = int.TryParse(starsText.Replace(",", ""), out var starCount) ? starCount : 0;
-            }
-        }
-
-        var creationDateNode = htmlDoc.DocumentNode.SelectSingleNode("//relative-time");
-        var creationDateText = creationDateNode?.GetAttributeValue("datetime", "");
-        var creationDate = DateTime.TryParse(creationDateText, out var date) ? date : DateTime.MinValue;
-
-        WebFrameworks webFramework = default;
-        var readmeNode = htmlDoc.DocumentNode.SelectSingleNode("//article[contains(@class, 'markdown-body')]");
-        var readmeText = readmeNode?.InnerText.ToLower();
-
-        if (readmeText != null)
-        {
-            if (readmeText.Contains("aspnet"))
-                webFramework = WebFrameworks.Aspnet;
-            else if (readmeText.Contains("django"))
-                webFramework = WebFrameworks.Jango;
-            else if (readmeText.Contains("spring"))
-                webFramework = WebFrameworks.Spring;
-        }
-
-        var metaData = new GitHubProject
-        {
-            Id = Guid.NewGuid(),
-            UrlPostfix = urlPostfix,
-            WebFramework = webFramework,
-            Stars = stars,
-            CreationDate = creationDate,
-        };
-
-        return metaData;
-    }
-
-    /// <summary>
     /// Saving metadata by URL
     /// </summary>
     /// <param name="url"></param>
@@ -114,7 +48,7 @@ public class GitHubService
     /// <exception cref="Exception"></exception>
     public async Task<bool> SaveMetaInfoByURL(string url)
     {
-        var metaData = await GetMetaInfoByURL(url);
+        var metaData = await _webPagesScanner.GetMetaInfoByURL(url);
 
         if (metaData == null)
         {
@@ -156,7 +90,7 @@ public class GitHubService
     /// <exception cref="Exception"></exception>
     public async Task<bool> UpdateMetaInfoByURL(string url)
     {
-        var newMetaData = await GetMetaInfoByURL(url);
+        var newMetaData = await _webPagesScanner.GetMetaInfoByURL(url);
 
         if (newMetaData == null)
         {
