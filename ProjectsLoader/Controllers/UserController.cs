@@ -1,6 +1,7 @@
 ﻿using Contracts.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ProjectsLoader.Models;
 using ProjectsLoader.Services;
 
 namespace ProjectsLoader.Controllers
@@ -42,6 +43,15 @@ namespace ProjectsLoader.Controllers
         [Route("CreateUser")]
         public async Task<bool> CreateUser(User user)
         {
+            return await _userService.CreateUser(user);
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("CreateUserWithoutAuth")]
+        public async Task<bool> CreateUserWithoutAuth(UserCredentials userCredentials) 
+        {
+            User user = new() {Id = Guid.NewGuid(), Login = userCredentials.Login, Password = userCredentials.Password };
             return await _userService.CreateUser(user);
         }
 
