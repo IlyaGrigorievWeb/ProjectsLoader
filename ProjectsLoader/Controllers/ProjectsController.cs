@@ -54,7 +54,7 @@ public class ProjectsController : ControllerBase
     [Route("GetMetaInfoByURL")]
     public async Task<GitHubProject> GetMetaInfoByURL(string url)
     {
-        return await _webPagesScanner.GetMetaInfoByURL(url);
+        return await _gitHubService.GetGitHubProject(url);
     }
 
     /// <summary>

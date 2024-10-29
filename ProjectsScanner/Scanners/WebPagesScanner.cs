@@ -28,7 +28,7 @@ public class WebPagesScanner : IProjectScanner
     /// </summary>
     /// <param name="url"></param>
     /// <returns></returns>
-    public async Task<GitHubProject> GetMetaInfoByURL(string url)
+    public async Task<GitHubProject> GetGitHubProject(string url)
     {
         WebFrameworks webFramework = WebFrameworks.Uncertain;
 

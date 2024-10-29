@@ -40,6 +40,11 @@ public class GitHubService
         return await _context.GitHubProjects.Where(x => x.WebFramework == framework).ToListAsync();
     }
 
+    public async Task<GitHubProject> GetGitHubProject(string url)
+    {
+        return await _webPagesScanner.GetGitHubProject(url);
+    }
+
     /// <summary>
     /// Saving metadata by URL
     /// </summary>
