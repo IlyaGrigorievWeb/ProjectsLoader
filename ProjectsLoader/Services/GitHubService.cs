@@ -53,7 +53,7 @@ public class GitHubService
     /// <exception cref="Exception"></exception>
     public async Task<bool> SaveMetaInfoByURL(string url)
     {
-        var metaData = await _webPagesScanner.GetMetaInfoByURL(url);
+        var metaData = await _webPagesScanner.GetGitHubProject(url);
 
         if (metaData == null)
         {
@@ -95,7 +95,7 @@ public class GitHubService
     /// <exception cref="Exception"></exception>
     public async Task<bool> UpdateMetaInfoByURL(string url)
     {
-        var newMetaData = await _webPagesScanner.GetMetaInfoByURL(url);
+        var newMetaData = await _webPagesScanner.GetGitHubProject(url);
 
         if (newMetaData == null)
         {
