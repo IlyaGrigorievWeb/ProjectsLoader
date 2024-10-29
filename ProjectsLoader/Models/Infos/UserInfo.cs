@@ -1,6 +1,6 @@
-﻿namespace ProjectsLoader.Models
+﻿namespace ProjectsLoader.Models.Infos
 {
-    public class UserCredentials
+    public class UserInfo
     {
         public string Login { get; set; }
 
