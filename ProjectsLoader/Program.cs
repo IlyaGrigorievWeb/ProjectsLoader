@@ -76,6 +76,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IndentityService>();
 builder.Services.AddScoped<WebPagesScanner>();
+builder.Services.AddScoped<FileLoaderService>();
 
 builder.Services.AddHttpClient();
 
