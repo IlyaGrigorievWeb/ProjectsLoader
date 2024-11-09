@@ -4,9 +4,9 @@ using ProjectsLoader.Models.Infos;
 
 namespace ProjectsLoader.Mappings.UserMapper;
 
-public class UserInfoToUserMapper : Profile
+public class UserMapper : Profile
 {
-    public UserInfoToUserMapper()
+    public UserMapper()
     {
         CreateMap<UserInfo, User>().ReverseMap();
     }
