@@ -3,6 +3,7 @@ using Contracts.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectsLoader.Services;
+using ProjectsScanner.Scanners;
 
 namespace ProjectsLoader.Controllers;
 
@@ -12,10 +13,12 @@ namespace ProjectsLoader.Controllers;
 public class ProjectsController : ControllerBase
 {
     private readonly GitHubService _gitHubService;
+    private readonly WebPagesScanner _webPagesScanner;
 
-    public ProjectsController(GitHubService gitHubService)
+    public ProjectsController(GitHubService gitHubService, WebPagesScanner webPagesScanner)
     {
         _gitHubService = gitHubService;
+        _webPagesScanner = webPagesScanner;
     }
 
     /// <summary>
@@ -51,7 +54,7 @@ public class ProjectsController : ControllerBase
     [Route("GetMetaInfoByURL")]
     public async Task<GitHubProject> GetMetaInfoByURL(string url)
     {
-        return await _gitHubService.GetMetaInfoByURL(url);
+        return await _gitHubService.GetGitHubProject(url);
     }
 
     /// <summary>

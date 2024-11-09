@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using ProjectsScanner.Scanners;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
@@ -74,7 +75,9 @@ builder.Services.AddScoped<GitHubService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IndentityService>();
+builder.Services.AddScoped<WebPagesScanner>();
 
+builder.Services.AddHttpClient();
 
 builder.Services.AddDbContext<PostgresContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
