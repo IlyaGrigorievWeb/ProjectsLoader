@@ -3,6 +3,8 @@ using Contracts.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Storages.EntitiesStorage;
 using System.Net.Http;
+using AutoMapper;
+using ProjectsLoader.Models.Infos;
 
 namespace ProjectsLoader.Services
 {
@@ -10,11 +12,13 @@ namespace ProjectsLoader.Services
     {
         private readonly PostgresContext _context;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IMapper _mapper;
 
-        public UserService(PostgresContext context, IPasswordHasher passwordHasher)
+        public UserService(PostgresContext context, IPasswordHasher passwordHasher, IMapper mapper)
         {
             _context = context;
             _passwordHasher = passwordHasher;
+            _mapper = mapper;
         }
 
         public async Task<List<User>> GetAllUsersAsync()
@@ -30,6 +34,12 @@ namespace ProjectsLoader.Services
         public async Task<User> GetUserByLogin(string login) 
         {
             return await _context.Users.Where(x => x.Login == login).FirstOrDefaultAsync();
+        }
+        
+        public async Task<bool> CreateUser(UserInfo userCredentials)
+        {
+            var user = _mapper.Map<User>(userCredentials);
+            return await CreateUser(user);
         }
 
         public async Task<bool> CreateUser(User user)
@@ -54,7 +64,7 @@ namespace ProjectsLoader.Services
 
             _context.Users.Add(newUser);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return true;
         }

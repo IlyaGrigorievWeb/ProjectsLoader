@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using ProjectsLoader.Mappings.UserMapper;
 using ProjectsScanner.Scanners;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -77,6 +77,8 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IndentityService>();
 builder.Services.AddScoped<WebPagesScanner>();
 builder.Services.AddScoped<FileLoaderService>();
+
+builder.Services.AddAutoMapper(typeof(UserInfoToUserMapper));
 
 builder.Services.AddHttpClient();
 
