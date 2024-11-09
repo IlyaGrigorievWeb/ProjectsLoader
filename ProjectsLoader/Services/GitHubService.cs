@@ -60,6 +60,11 @@ public class GitHubService
             throw new Exception("Failed to get metadata");
         }
 
+        if (url.Contains(metaData.UrlPostfix))
+        {
+            return await UpdateMetaInfoByURL(url);
+        }
+
         _context.GitHubProjects.Add(metaData);
 
         await _context.SaveChangesAsync();
@@ -103,8 +108,12 @@ public class GitHubService
         }
 
         var existingMetaData = _context.GitHubProjects
-            .Where(x => x.Id == newMetaData.Id)
-            .FirstOrDefault();
+            .FirstOrDefault(x => x.UrlPostfix.Contains(newMetaData.UrlPostfix));
+
+        if (existingMetaData == null)
+        {
+            throw new Exception("Not found project in DataBase");
+        }
 
         bool hasChanges = false;
 
