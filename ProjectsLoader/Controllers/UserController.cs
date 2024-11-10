@@ -39,6 +39,14 @@ namespace ProjectsLoader.Controllers
             return await _userService.GetUserByLogin(login);
         }
 
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("CreateUserWithoutAuth")]
+        public async Task<bool> CreateUserWithoutAuth(UserInfo userCredentials) 
+        {
+            return await _userService.CreateUser(userCredentials);
+        }
+        
         [HttpPost]
         [Route("CreateUser")]
         public async Task<bool> CreateUser(User user)
@@ -46,14 +54,6 @@ namespace ProjectsLoader.Controllers
             return await _userService.CreateUser(user);
         }
 
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("CreateUserWithoutAuth")]
-        public async Task<bool> CreateUserWithoutAuth(UserInfo userCredentials) 
-        {
-            User user = new() {Id = Guid.NewGuid(), Login = userCredentials.Login, Password = userCredentials.Password };
-            return await _userService.CreateUser(user);
-        }
 
         [HttpPut]
         [Route("UpdateUser")]
