@@ -5,6 +5,11 @@ using ProjectsLoader.Services;
 
 namespace ProjectsLoader.Controllers
 {
+    public static class IndentityControllerRoutes
+    {
+        public const string GetToken = "{login}/{password}";
+    }
+
     [ApiController]
     [Route("[controller]")]
     public class IndentityController : ControllerBase
@@ -16,8 +21,8 @@ namespace ProjectsLoader.Controllers
             _indentityService = indentityService;
         }
 
-        [HttpPost]
-        [Route("GetToken")]
+        [HttpGet]
+        [Route(IndentityControllerRoutes.GetToken)]
         public async Task<string> GetToken(string login, string password) 
         {
             return await _indentityService.Authenticate(login, password);
