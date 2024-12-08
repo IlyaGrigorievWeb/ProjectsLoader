@@ -4,6 +4,11 @@ using ProjectsLoader.Services;
 
 namespace ProjectsLoader.Controllers;
 
+public static class FileLoaderControllerRoutes
+{
+    public const string DownloadFile = "{url}/branch/{branchName}";
+}
+
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -21,7 +26,7 @@ public class FileLoaderController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Route("GetGitHubProject")]
+    [Route(FileLoaderControllerRoutes.DownloadFile)]
     public async Task<bool> DownloadFile(string url, string? branchName = null)
     {
         return await _fileLoaderService.DownloadFile(url, branchName);

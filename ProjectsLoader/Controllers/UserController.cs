@@ -6,6 +6,19 @@ using ProjectsLoader.Services;
 
 namespace ProjectsLoader.Controllers
 {
+    
+    public static class UserControllerRoutes
+    {
+        public const string BasePrefix = "User";
+        public const string GetAllUsers = "";
+        public const string GetById = "{id:guid}";
+        public const string GetByLogin = "{login}";
+        public const string CreateUserWithoutAuth = "CreateUserWithoutAuth";
+        public const string CreateUser = "";
+        public const string UpdateUser = "";
+        public const string DeleteUser = "{id:guid}";
+    }
+    
     [Authorize]
     [ApiController]
     [Route("[controller]")]
@@ -19,36 +32,28 @@ namespace ProjectsLoader.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllUsers")]
-        public async Task<List<User>> GetAllUsers()
+        [Route(UserControllerRoutes.GetAllUsers)]
+        public Task<IQueryable<User>> GetAllUsers()
         {
-            return await _userService.GetAllUsersAsync();
+            return Task.FromResult(_userService.Get());
         }
 
         [HttpGet]
-        [Route("GetUserById")]
-        public async Task<User> GetUserById(Guid id)
+        [Route(UserControllerRoutes.GetById)]
+        public Task<IQueryable<User>> GetUserById(Guid id)
         {
-            return await _userService.GetUserById(id);
+            return Task.FromResult(_userService.Get().Where(x => x.Id == id));
         }
 
         [HttpGet]
-        [Route("GetUserByLogin")]
-        public async Task<User> GetUserByLogin(string login)
+        [Route(UserControllerRoutes.GetByLogin)]
+        public Task<IQueryable<User>> GetUserByLogin(string login)
         {
-            return await _userService.GetUserByLogin(login);
-        }
-
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("CreateUserWithoutAuth")]
-        public async Task<bool> CreateUserWithoutAuth(UserInfo userCredentials) 
-        {
-            return await _userService.CreateUser(userCredentials);
+            return Task.FromResult(_userService.Get().Where(x => x.Login == login));
         }
         
         [HttpPost]
-        [Route("CreateUser")]
+        [Route(UserControllerRoutes.CreateUser)]
         public async Task<bool> CreateUser(User user)
         {
             return await _userService.CreateUser(user);
@@ -56,14 +61,14 @@ namespace ProjectsLoader.Controllers
 
 
         [HttpPut]
-        [Route("UpdateUser")]
+        [Route(UserControllerRoutes.UpdateUser)]
         public async Task<bool> UpdateUser(User user) 
         {
             return await _userService.UpdateUser(user);
         }
 
         [HttpDelete]
-        [Route("DeleteUser")]
+        [Route(UserControllerRoutes.DeleteUser)]
         public async Task<bool> DeleteUser(Guid id) 
         {
             return await _userService.DeleteUser(id);

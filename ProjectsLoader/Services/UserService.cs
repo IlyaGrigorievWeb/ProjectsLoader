@@ -21,25 +21,14 @@ namespace ProjectsLoader.Services
             _mapper = mapper;
         }
 
-        public async Task<List<User>> GetAllUsersAsync()
+        public IQueryable<User> Get()
         {
-            return await _context.Users.ToListAsync();
-        }
-
-        public async Task<User> GetUserById(Guid id)
-        {
-            return await _context.Users.Where(x => x.Id == id).FirstOrDefaultAsync();
+            return _context.Users.AsQueryable();
         }
 
         public async Task<User> GetUserByLogin(string login) 
         {
             return await _context.Users.Where(x => x.Login == login).FirstOrDefaultAsync();
-        }
-        
-        public async Task<bool> CreateUser(UserInfo userCredentials)
-        {
-            var user = _mapper.Map<User>(userCredentials);
-            return await CreateUser(user);
         }
 
         public async Task<bool> CreateUser(User user)
@@ -96,7 +85,7 @@ namespace ProjectsLoader.Services
 
             _context.Users.Remove(existingUser);
 
-            _context.SaveChanges() ;
+            await _context.SaveChangesAsync();
 
             return true;
         }
