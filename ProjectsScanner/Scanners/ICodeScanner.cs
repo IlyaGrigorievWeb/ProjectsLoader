@@ -1,8 +1,8 @@
 ﻿namespace ProjectsScanner.Scanners;
 
-public interface ICodeScanner : IProjectScanner
+public interface ICodeScanner<T> : IProjectScanner
 {
-    bool isLoggingSupported();
+    T isLoggingSupported();
 
-    string getLoggerFramework();
+    T getLoggerFramework();
 }

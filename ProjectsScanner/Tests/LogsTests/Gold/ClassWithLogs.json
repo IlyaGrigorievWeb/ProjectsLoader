@@ -1,0 +1,8 @@
+{
+  "ClassWithLogs" : {
+    "Run": [
+      "Hello World!",
+      "Hello ---a---"
+    ]
+  }
+}
