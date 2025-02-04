@@ -37,9 +37,9 @@ public class ProjectsController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Route(ProjectsControllerRoutes.GetGitHubProject)]
-    public Task<IQueryable<GitHubProject>> GetGitHubProject(Guid id)
+    public async Task<GitHubProject> GetGitHubProject(Guid id)
     {
-        return Task.FromResult(_gitHubService.Get().Where(x => x.Id == id));
+        return await _gitHubService.GetProject(id);
     }
 
     /// <summary>
@@ -49,9 +49,9 @@ public class ProjectsController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Route(ProjectsControllerRoutes.GetAllGitHubProject)]
-    public async Task<IQueryable<GitHubProject>> GetAllGitHubProject(WebFrameworks framework)
+    public async Task<IList<GitHubProject>> GetAllGitHubProject(WebFrameworks framework)
     {
-        return  await Task.FromResult(_gitHubService.Get().Where(x => x.WebFramework == framework));
+        return  await _gitHubService.GetAll(framework);
     }
 
     /// <summary>

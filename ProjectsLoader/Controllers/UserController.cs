@@ -33,23 +33,23 @@ namespace ProjectsLoader.Controllers
 
         [HttpGet]
         [Route(UserControllerRoutes.GetAllUsers)]
-        public Task<IQueryable<User>> GetAllUsers()
+        public async Task<IList<User>> GetAllUsers()
         {
-            return Task.FromResult(_userService.Get());
+            return await _userService.GetAll();
         }
 
         [HttpGet]
         [Route(UserControllerRoutes.GetById)]
-        public Task<IQueryable<User>> GetUserById(Guid id)
+        public async Task<User> GetUserById(Guid id)
         {
-            return Task.FromResult(_userService.Get().Where(x => x.Id == id));
+            return await _userService.GetById(id);
         }
 
         [HttpGet]
         [Route(UserControllerRoutes.GetByLogin)]
-        public Task<IQueryable<User>> GetUserByLogin(string login)
+        public async Task<User> GetUserByLogin(string login)
         {
-            return Task.FromResult(_userService.Get().Where(x => x.Login == login));
+            return await _userService.GetUserByLogin(login);
         }
         
         [HttpPost]

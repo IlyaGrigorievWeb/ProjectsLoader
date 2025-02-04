@@ -20,9 +20,14 @@ public class GitHubService
         _webPagesScanner = webPagesScanner;
     }
 
-    public IQueryable<GitHubProject> Get()
+    public async Task<GitHubProject> GetProject(Guid id)
     {
-        return _context.GitHubProjects.AsQueryable();
+        return await _context.GitHubProjects.Where(x => x.Id == id).FirstOrDefaultAsync();
+    }
+
+    public async Task<IList<GitHubProject>>GetAll(WebFrameworks webFramework)
+    {
+        return await _context.GitHubProjects.Where(x => x.WebFramework == webFramework).ToListAsync();
     }
 
     public async Task<GitHubProject> GetGitHubProject(string url)

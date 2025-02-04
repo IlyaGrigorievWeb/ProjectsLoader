@@ -21,10 +21,16 @@ namespace ProjectsLoader.Services
             _mapper = mapper;
         }
 
-        public IQueryable<User> Get()
+        public async Task<IList<User>> GetAll()
         {
-            return _context.Users.AsQueryable();
+            return _context.Users.ToList();
         }
+
+        public async Task<User> GetById(Guid id)
+        {
+            return await _context.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
+        }
+
 
         public async Task<User> GetUserByLogin(string login) 
         {
