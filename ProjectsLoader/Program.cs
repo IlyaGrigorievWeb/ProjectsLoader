@@ -8,8 +8,19 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using ProjectsLoader.Mappings.UserMapper;
 using ProjectsScanner.Scanners;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.File("logs/debug.log", rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Debug)
+    .WriteTo.File("logs/info.log", rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+    .WriteTo.File("logs/error.log", rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -17,9 +28,6 @@ builder.Configuration
     .AddEnvironmentVariables();
 var config = builder.Configuration;
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
-
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
 
 builder.Services.AddAuthentication(x =>
 {
@@ -69,7 +77,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<GitHubService>();
 builder.Services.AddScoped<UserService>();
@@ -79,7 +86,6 @@ builder.Services.AddScoped<IndentityService>();
 builder.Services.AddScoped<WebPagesScanner>();
 builder.Services.AddScoped<FileLoaderService>();
 builder.Services.AddScoped<RegistrationService>();
-
 
 builder.Services.AddAutoMapper(typeof(UserMapper));
 
@@ -101,6 +107,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSerilogRequestLogging();
 
 app.UseEndpoints(endpoints =>
 {
