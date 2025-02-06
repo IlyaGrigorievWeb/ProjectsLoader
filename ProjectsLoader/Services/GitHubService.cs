@@ -20,24 +20,14 @@ public class GitHubService
         _webPagesScanner = webPagesScanner;
     }
 
-    /// <summary>
-    /// Get GitHubProject by ID
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    public async Task<GitHubProject> GetGitHubProject(Guid id)
+    public async Task<GitHubProject> GetProject(Guid id)
     {
         return await _context.GitHubProjects.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
 
-    /// <summary>
-    /// Get all GitHubProject by filter
-    /// </summary>
-    /// <param name="framework"></param>
-    /// <returns></returns>
-    public async Task<List<GitHubProject>> GetAllGitHubProject(WebFrameworks framework)
+    public async Task<IList<GitHubProject>>GetAll(WebFrameworks webFramework)
     {
-        return await _context.GitHubProjects.Where(x => x.WebFramework == framework).ToListAsync();
+        return await _context.GitHubProjects.Where(x => x.WebFramework == webFramework).ToListAsync();
     }
 
     public async Task<GitHubProject> GetGitHubProject(string url)

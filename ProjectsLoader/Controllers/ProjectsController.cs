@@ -7,18 +7,27 @@ using ProjectsScanner.Scanners;
 
 namespace ProjectsLoader.Controllers;
 
+public static class ProjectsControllerRoutes
+{
+    public const string GetGitHubProject = "{id:guid}";
+    public const string GetAllGitHubProject = "{framework:int}";
+    public const string GetMetaInfoByURL = "{url}";
+    public const string SaveMetaInfoByURL = "{url}";
+    public const string SaveMetaInfo = "";
+    public const string UpdateMetaInfoByURL = "";
+    public const string DeleteMetaInfo = "{id:guid}";
+}
+
 [Authorize]
 [ApiController]
 [Route("[controller]")]
 public class ProjectsController : ControllerBase
 {
     private readonly GitHubService _gitHubService;
-    private readonly WebPagesScanner _webPagesScanner;
 
-    public ProjectsController(GitHubService gitHubService, WebPagesScanner webPagesScanner)
+    public ProjectsController(GitHubService gitHubService)
     {
         _gitHubService = gitHubService;
-        _webPagesScanner = webPagesScanner;
     }
 
     /// <summary>
@@ -27,22 +36,22 @@ public class ProjectsController : ControllerBase
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet]
-    [Route("GetGitHubProject")]
+    [Route(ProjectsControllerRoutes.GetGitHubProject)]
     public async Task<GitHubProject> GetGitHubProject(Guid id)
     {
-        return await _gitHubService.GetGitHubProject(id);
+        return await _gitHubService.GetProject(id);
     }
 
     /// <summary>
-    /// Get all GitHubProject by filter
+    /// Get all GitHubProject by framework
     /// </summary>
     /// <param name="framework"></param>
     /// <returns></returns>
     [HttpGet]
-    [Route("GetAllGitHubProject")]
-    public async Task<List<GitHubProject>> GetAllGitHubProject(WebFrameworks framework)
+    [Route(ProjectsControllerRoutes.GetAllGitHubProject)]
+    public async Task<IList<GitHubProject>> GetAllGitHubProject(WebFrameworks framework)
     {
-        return await _gitHubService.GetAllGitHubProject(framework);
+        return  await _gitHubService.GetAll(framework);
     }
 
     /// <summary>
@@ -51,7 +60,7 @@ public class ProjectsController : ControllerBase
     /// <param name="url"></param>
     /// <returns></returns>
     [HttpGet]
-    [Route("GetMetaInfoByURL")]
+    [Route(ProjectsControllerRoutes.GetMetaInfoByURL)]
     public async Task<GitHubProject> GetMetaInfoByURL(string url)
     {
         return await _gitHubService.GetGitHubProject(url);
@@ -63,7 +72,7 @@ public class ProjectsController : ControllerBase
     /// <param name="url"></param>
     /// <returns></returns>
     [HttpPost]
-    [Route("SaveMetaInfoByURL")]
+    [Route(ProjectsControllerRoutes.SaveMetaInfoByURL)]
     public async Task<bool> SaveMetaInfoByURL(string url)
     {
         return await _gitHubService.SaveMetaInfoByURL(url);
@@ -75,7 +84,7 @@ public class ProjectsController : ControllerBase
     /// <param name="url"></param>
     /// <returns></returns>
     [HttpPost]
-    [Route("SaveMetaInfo")]
+    [Route(ProjectsControllerRoutes.SaveMetaInfo)]
     public async Task<bool> SaveMetaInfo(GitHubProject gitHubProject)
     {
         return await _gitHubService.SaveMetaInfo(gitHubProject);
@@ -87,7 +96,7 @@ public class ProjectsController : ControllerBase
     /// <param name="url"></param>
     /// <returns></returns>
     [HttpPut]
-    [Route("UpdateMetaInfoByURL")]
+    [Route(ProjectsControllerRoutes.UpdateMetaInfoByURL)]
     public async Task<bool> UpdateMetaInfoByURL(string url)
     {
         return await _gitHubService.UpdateMetaInfoByURL(url);
@@ -100,7 +109,7 @@ public class ProjectsController : ControllerBase
     /// <param name="isLoadedFromDisk"></param>
     /// <returns></returns>
     [HttpDelete]
-    [Route("UpdateMetaInfoByURL")]
+    [Route(ProjectsControllerRoutes.DeleteMetaInfo)]
     public async Task<bool> DeleteMetaInfo(Guid id, bool isLoadedFromDisk)
     {
         return await _gitHubService.DeleteMetaInfo(id, isLoadedFromDisk);

@@ -6,6 +6,19 @@ using ProjectsLoader.Services;
 
 namespace ProjectsLoader.Controllers
 {
+    
+    public static class UserControllerRoutes
+    {
+        public const string BasePrefix = "User";
+        public const string GetAllUsers = "";
+        public const string GetById = "{id:guid}";
+        public const string GetByLogin = "{login}";
+        public const string CreateUserWithoutAuth = "CreateUserWithoutAuth";
+        public const string CreateUser = "";
+        public const string UpdateUser = "";
+        public const string DeleteUser = "{id:guid}";
+    }
+    
     [Authorize]
     [ApiController]
     [Route("[controller]")]
@@ -19,36 +32,28 @@ namespace ProjectsLoader.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllUsers")]
-        public async Task<List<User>> GetAllUsers()
+        [Route(UserControllerRoutes.GetAllUsers)]
+        public async Task<IList<User>> GetAllUsers()
         {
-            return await _userService.GetAllUsersAsync();
+            return await _userService.GetAll();
         }
 
         [HttpGet]
-        [Route("GetUserById")]
+        [Route(UserControllerRoutes.GetById)]
         public async Task<User> GetUserById(Guid id)
         {
-            return await _userService.GetUserById(id);
+            return await _userService.GetById(id);
         }
 
         [HttpGet]
-        [Route("GetUserByLogin")]
+        [Route(UserControllerRoutes.GetByLogin)]
         public async Task<User> GetUserByLogin(string login)
         {
             return await _userService.GetUserByLogin(login);
         }
-
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("CreateUserWithoutAuth")]
-        public async Task<bool> CreateUserWithoutAuth(UserInfo userCredentials) 
-        {
-            return await _userService.CreateUser(userCredentials);
-        }
         
         [HttpPost]
-        [Route("CreateUser")]
+        [Route(UserControllerRoutes.CreateUser)]
         public async Task<bool> CreateUser(User user)
         {
             return await _userService.CreateUser(user);
@@ -56,14 +61,14 @@ namespace ProjectsLoader.Controllers
 
 
         [HttpPut]
-        [Route("UpdateUser")]
+        [Route(UserControllerRoutes.UpdateUser)]
         public async Task<bool> UpdateUser(User user) 
         {
             return await _userService.UpdateUser(user);
         }
 
         [HttpDelete]
-        [Route("DeleteUser")]
+        [Route(UserControllerRoutes.DeleteUser)]
         public async Task<bool> DeleteUser(Guid id) 
         {
             return await _userService.DeleteUser(id);
