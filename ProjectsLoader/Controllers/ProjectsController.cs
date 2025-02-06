@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectsLoader.Services;
 using ProjectsScanner.Scanners;
+using Serilog;
 
 namespace ProjectsLoader.Controllers;
 
@@ -30,88 +31,108 @@ public class ProjectsController : ControllerBase
         _gitHubService = gitHubService;
     }
 
-    /// <summary>
-    /// Get GitHubProject by ID
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
     [HttpGet]
     [Route(ProjectsControllerRoutes.GetGitHubProject)]
     public async Task<GitHubProject> GetGitHubProject(Guid id)
     {
-        return await _gitHubService.GetProject(id);
+        try
+        {
+            return await _gitHubService.GetProject(id);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while getting GitHub project with ID: {ProjectId}", id);
+            throw;
+        }
     }
 
-    /// <summary>
-    /// Get all GitHubProject by framework
-    /// </summary>
-    /// <param name="framework"></param>
-    /// <returns></returns>
     [HttpGet]
     [Route(ProjectsControllerRoutes.GetAllGitHubProject)]
     public async Task<IList<GitHubProject>> GetAllGitHubProject(WebFrameworks framework)
     {
-        return  await _gitHubService.GetAll(framework);
+        try
+        {
+            return await _gitHubService.GetAll(framework);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while getting all GitHub projects for framework: {Framework}", framework);
+            throw;
+        }
     }
 
-    /// <summary>
-    /// Get metadata by URL
-    /// </summary>
-    /// <param name="url"></param>
-    /// <returns></returns>
     [HttpGet]
     [Route(ProjectsControllerRoutes.GetMetaInfoByURL)]
     public async Task<GitHubProject> GetMetaInfoByURL(string url)
     {
-        return await _gitHubService.GetGitHubProject(url);
+        try
+        {
+            return await _gitHubService.GetGitHubProject(url);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while getting metadata for URL: {Url}", url);
+            throw;
+        }
     }
 
-    /// <summary>
-    /// Saving metadata by URL
-    /// </summary>
-    /// <param name="url"></param>
-    /// <returns></returns>
     [HttpPost]
     [Route(ProjectsControllerRoutes.SaveMetaInfoByURL)]
     public async Task<bool> SaveMetaInfoByURL(string url)
     {
-        return await _gitHubService.SaveMetaInfoByURL(url);
+        try
+        {
+            return await _gitHubService.SaveMetaInfoByURL(url);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while saving metadata for URL: {Url}", url);
+            throw;
+        }
     }
 
-    /// <summary>
-    /// Saving metadata
-    /// </summary>
-    /// <param name="url"></param>
-    /// <returns></returns>
     [HttpPost]
     [Route(ProjectsControllerRoutes.SaveMetaInfo)]
     public async Task<bool> SaveMetaInfo(GitHubProject gitHubProject)
     {
-        return await _gitHubService.SaveMetaInfo(gitHubProject);
+        try
+        {
+            return await _gitHubService.SaveMetaInfo(gitHubProject);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while saving metadata for GitHub project with ID: {ProjectId}", gitHubProject.Id);
+            throw;
+        }
     }
 
-    /// <summary>
-    /// Update metadata by URL
-    /// </summary>
-    /// <param name="url"></param>
-    /// <returns></returns>
     [HttpPut]
     [Route(ProjectsControllerRoutes.UpdateMetaInfoByURL)]
     public async Task<bool> UpdateMetaInfoByURL(string url)
     {
-        return await _gitHubService.UpdateMetaInfoByURL(url);
+        try
+        {
+            return await _gitHubService.UpdateMetaInfoByURL(url);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while updating metadata for URL: {Url}", url);
+            throw;
+        }
     }
 
-    /// <summary>
-    /// Delete metadata
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="isLoadedFromDisk"></param>
-    /// <returns></returns>
     [HttpDelete]
     [Route(ProjectsControllerRoutes.DeleteMetaInfo)]
     public async Task<bool> DeleteMetaInfo(Guid id, bool isLoadedFromDisk)
     {
-        return await _gitHubService.DeleteMetaInfo(id, isLoadedFromDisk);
+        try
+        {
+            return await _gitHubService.DeleteMetaInfo(id, isLoadedFromDisk);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error occurred while deleting metadata for project with ID: {ProjectId}", id);
+            throw;
+        }
     }
 }
