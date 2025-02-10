@@ -7,9 +7,9 @@ public class RedisService
 {
     private readonly IDatabase _database;
 
-    public RedisService(IDatabase database)
+    public RedisService(IConnectionMultiplexer connectionMultiplexer)
     {
-        _database = database;
+        _database = connectionMultiplexer.GetDatabase();
     }
     
     public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null)
