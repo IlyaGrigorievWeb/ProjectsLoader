@@ -87,6 +87,7 @@ builder.Services.AddScoped<IndentityService>();
 builder.Services.AddScoped<WebPagesScanner>();
 builder.Services.AddScoped<FileLoaderService>();
 builder.Services.AddScoped<RegistrationService>();
+builder.Services.AddScoped<RedisService>();
 
 builder.Services.AddAutoMapper(typeof(UserMapper));
 
