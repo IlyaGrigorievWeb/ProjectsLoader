@@ -8,8 +8,20 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using ProjectsLoader.Mappings.UserMapper;
 using ProjectsScanner.Scanners;
+using Serilog;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.File("logs/debug.log", rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Debug)
+    .WriteTo.File("logs/info.log", rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+    .WriteTo.File("logs/error.log", rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -17,9 +29,6 @@ builder.Configuration
     .AddEnvironmentVariables();
 var config = builder.Configuration;
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
-
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
 
 builder.Services.AddAuthentication(x =>
 {
@@ -64,20 +73,21 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            []
         }
     });
 });
 
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<GitHubService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddSingleton<IActiveUserCounter, ActiveUserCounter>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IndentityService>();
 builder.Services.AddScoped<WebPagesScanner>();
 builder.Services.AddScoped<FileLoaderService>();
 builder.Services.AddScoped<RegistrationService>();
+builder.Services.AddScoped<RedisService>();
 
 builder.Services.AddAutoMapper(typeof(UserMapper));
 
@@ -86,10 +96,14 @@ builder.Services.AddHttpClient();
 builder.Services.AddDbContext<PostgresContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("Redis:ConnectionString")));
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
+app.UseMiddleware<CheckUserMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -98,6 +112,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSerilogRequestLogging();
 
 app.UseEndpoints(endpoints =>
 {
