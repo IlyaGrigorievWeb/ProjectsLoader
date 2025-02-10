@@ -11,6 +11,7 @@ namespace ProjectsLoader.Controllers
         public const string GetToken = "{login}/{password}";
         public const string LogOut = "";
         public const string GetAllActiveUser = "";
+        public const string GetAllActiveUserRedis = "active-users-redis";
     }
 
     [ApiController]
@@ -84,5 +85,21 @@ namespace ProjectsLoader.Controllers
                 throw new ApplicationException("An error occurred while fetching active users.", ex);
             }
         }
+        
+        [HttpGet]
+        [Route(IndentityControllerRoutes.GetAllActiveUserRedis)]
+        public async Task<List<string>> GetAllActiveUserRedis()
+        {
+            try
+            {
+                return await _indentityService.GetActiveUsersAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error occurred while fetching active users from redis.");
+                throw new ApplicationException("An error occurred while fetching active users from redis.", ex);
+            }
+        }
+        
     }
 }
