@@ -3,16 +3,15 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Contracts.Interfaces;
+using ProjectsLoader.Services;
 
 public class CheckUserMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IActiveUserCounter _activeUserCounter;
 
-    public CheckUserMiddleware(RequestDelegate next, IActiveUserCounter activeUserCounter)
+    public CheckUserMiddleware(RequestDelegate next)
     {
         _next = next;
-        _activeUserCounter = activeUserCounter;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -37,10 +36,11 @@ public class CheckUserMiddleware
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync("Unauthorized: User not found.");
             }
+            
+            var counterService = context.RequestServices.GetRequiredService<ActiveUserCounter>();
+            var activeUsers = counterService.GetActiveUser();
 
-            var activeUsers = _activeUserCounter.GetActiveUser();
-
-            if (!activeUsers.Contains(userName))
+            if (userName != null && !activeUsers.Contains(userName))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync("Unauthorized: User not active.");

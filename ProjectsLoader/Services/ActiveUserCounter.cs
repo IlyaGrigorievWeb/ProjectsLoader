@@ -2,13 +2,9 @@
 
 namespace ProjectsLoader.Services
 {
-    public class ActiveUserCounter : IActiveUserCounter
+    public class ActiveUserCounter
     {
         private readonly List<string> _activeUsers = new List<string>();
-
-        public IReadOnlyList<string> ActiveUsers => _activeUsers;
-
-        public List<string> ActiveUser { get; }
 
         public void AddUser(string login)
         {

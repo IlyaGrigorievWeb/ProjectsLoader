@@ -14,11 +14,11 @@ namespace ProjectsLoader.Services
         private readonly JwtSettings _jwtSettings;
         private readonly UserService _userService;
         private readonly IPasswordHasher _passwordHasher;
-        private readonly IActiveUserCounter _activeUserCounter;
+        private readonly ActiveUserCounter _activeUserCounter;
         public IndentityService(IOptions<JwtSettings> jwtSettings, 
             UserService userService, 
-            IPasswordHasher passwordHasher, 
-            IActiveUserCounter activeUserCounter)
+            IPasswordHasher passwordHasher,
+            ActiveUserCounter activeUserCounter)
         {
             _jwtSettings = jwtSettings.Value;
             _userService = userService;
