@@ -13,17 +13,17 @@ namespace ProjectsLoader.Services
     {
         private readonly JwtSettings _jwtSettings;
         private readonly UserService _userService;
-        private readonly RedisService _redisService;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly ActiveUserCounter _activeUserCounter;
         public IndentityService(IOptions<JwtSettings> jwtSettings, 
             UserService userService, 
-            RedisService redisService,
-            IPasswordHasher passwordHasher)
+            IPasswordHasher passwordHasher,
+            ActiveUserCounter activeUserCounter)
         {
             _jwtSettings = jwtSettings.Value;
             _userService = userService;
             _passwordHasher = passwordHasher;
-            _redisService = redisService;
+            _activeUserCounter = activeUserCounter;
         }
 
         public async Task<string> Authenticate(string login, string password)
@@ -37,30 +37,20 @@ namespace ProjectsLoader.Services
                 throw new Exception("Login or password is not correct.");
             }
             
-            var activeUsers = await _redisService.GetAsync<HashSet<string>>("ActiveUsers") ?? new HashSet<string>();
-            activeUsers.Add(user.Login);
-            await _redisService.SetAsync("ActiveUsers", activeUsers, TimeSpan.FromHours(1));
+            _activeUserCounter.AddUser(user.Login);
 
             return GenerateJwtToken(login, "User");
         }
         
-        public async Task<Task> Logout(string login)
+        public Task Logout(string login)
         {
-            var activeUsers = await _redisService.GetAsync<HashSet<string>>("ActiveUsers");
-            if (activeUsers != null)
-            {
-                activeUsers.Remove(login);
-                await _redisService.SetAsync("ActiveUsers", activeUsers, TimeSpan.FromHours(1));
-            }
-            
+            _activeUserCounter.RemoveUser(login);
             return Task.CompletedTask;
         }
-        
 
-        public async Task<List<string>> GetActiveUsersAsync()
+        public  List<string> GetAllActiveUser()
         {
-            var activeUsers = await _redisService.GetAsync<HashSet<string>>("ActiveUsers");
-            return activeUsers?.ToList() ?? new List<string>();
+            return _activeUserCounter.GetActiveUser();
         }
 
         private string GenerateJwtToken(string login, string role)

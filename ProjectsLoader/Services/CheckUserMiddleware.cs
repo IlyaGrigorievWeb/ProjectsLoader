@@ -37,10 +37,10 @@ public class CheckUserMiddleware
                 await context.Response.WriteAsync("Unauthorized: User not found.");
             }
             
-            var counterService = context.RequestServices.GetRequiredService<RedisService>();
-            var activeUsers = await counterService.GetAsync<HashSet<string>>("ActiveUsers");
+            var counterService = context.RequestServices.GetRequiredService<ActiveUserCounter>();
+            var activeUsers = counterService.GetActiveUser();
 
-            if (userName != null && activeUsers != null && !activeUsers.Contains(userName))
+            if (userName != null && !activeUsers.Contains(userName))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync("Unauthorized: User not active.");
