@@ -136,7 +136,6 @@ public class LogsAnalyzer : IAnalyzer
                         if (argumentList.Count > 0)
                         {
                             var argument = argumentList[0].Expression;
-                            
                             // Attempt to evaluate the argument to get the string value
                             string logMessage = null;
 
@@ -162,6 +161,23 @@ public class LogsAnalyzer : IAnalyzer
                                 logMessage = verbatimLiteral.Token.ValueText;
                             }
 
+                            //Saving over arguments
+                            var overArguments = new List<Tuple<string, string>>();
+                            //Save arguments except 0 index (only arguments)
+                            if (argumentList.Count > 1)
+                            {
+                                for (int i = 0; i < argumentList.Count - 1; i++)
+                                {
+                                    if (i != 0)
+                                    {
+                                        overArguments.Add(Tuple.Create<string, string>(
+                                            "",//TODO: not implemented reading type of arguments argumentList[i].Expression.GetMemberType(),
+                                            argumentList[i].GetText().ToString()
+                                        ));
+                                    }
+                                }
+                            }
+
                             if (!string.IsNullOrEmpty(logMessage))
                             {
                                 result.Add(
@@ -169,7 +185,8 @@ public class LogsAnalyzer : IAnalyzer
                                     {
                                         ClassName = classNode.Identifier.Text,
                                         MethodName = methodName,
-                                        LogText = logMessage
+                                        LogText = logMessage,
+                                        Parameters = overArguments
                                     });
                             }
                         }
@@ -404,6 +421,8 @@ public class LoggerCallNode
     public string MethodName { get; set; }
     
     public string LogText { get; set; }
+
+    public List<Tuple<string, string>> Parameters { get; set; }
 }
 
 public class ClassCommentNode
