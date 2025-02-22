@@ -2,7 +2,8 @@
   "ClassWithLogs" : {
     "Run": [
       "Hello World!",
-      "Hello ---a---"
+      "Hello variable",
+      "Some class class.SomeDataClass"
     ]
   }
 }
