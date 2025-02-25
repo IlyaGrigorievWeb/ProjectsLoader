@@ -81,7 +81,6 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<GitHubService>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddSingleton<IActiveUserCounter, ActiveUserCounter>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IndentityService>();
 builder.Services.AddScoped<WebPagesScanner>();
