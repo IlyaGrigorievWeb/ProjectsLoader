@@ -35,4 +35,8 @@
       <ProjectReference Include="..\Storages\Storages.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="logs\" />
+    </ItemGroup>
+
 </Project>
