@@ -64,7 +64,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            []
         }
     });
 });
@@ -73,11 +73,13 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<GitHubService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddSingleton<ActiveUserCounter>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IndentityService>();
 builder.Services.AddScoped<WebPagesScanner>();
 builder.Services.AddScoped<FileLoaderService>();
 builder.Services.AddScoped<RegistrationService>();
+
 
 builder.Services.AddAutoMapper(typeof(UserMapper));
 
@@ -90,6 +92,7 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+app.UseMiddleware<CheckUserMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 
