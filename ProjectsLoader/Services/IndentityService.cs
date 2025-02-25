@@ -15,17 +15,14 @@ namespace ProjectsLoader.Services
         private readonly UserService _userService;
         private readonly RedisService _redisService;
         private readonly IPasswordHasher _passwordHasher;
-        private readonly IActiveUserCounter _activeUserCounter;
         public IndentityService(IOptions<JwtSettings> jwtSettings, 
             UserService userService, 
             RedisService redisService,
-            IPasswordHasher passwordHasher, 
-            IActiveUserCounter activeUserCounter)
+            IPasswordHasher passwordHasher)
         {
             _jwtSettings = jwtSettings.Value;
             _userService = userService;
             _passwordHasher = passwordHasher;
-            _activeUserCounter = activeUserCounter;
             _redisService = redisService;
         }
 
@@ -40,8 +37,6 @@ namespace ProjectsLoader.Services
                 throw new Exception("Login or password is not correct.");
             }
             
-            _activeUserCounter.AddUser(user.Login);
-            
             var activeUsers = await _redisService.GetAsync<HashSet<string>>("ActiveUsers") ?? new HashSet<string>();
             activeUsers.Add(user.Login);
             await _redisService.SetAsync("ActiveUsers", activeUsers, TimeSpan.FromHours(1));
@@ -51,8 +46,6 @@ namespace ProjectsLoader.Services
         
         public async Task<Task> Logout(string login)
         {
-            _activeUserCounter.RemoveUser(login);
-            
             var activeUsers = await _redisService.GetAsync<HashSet<string>>("ActiveUsers");
             if (activeUsers != null)
             {
@@ -62,11 +55,7 @@ namespace ProjectsLoader.Services
             
             return Task.CompletedTask;
         }
-
-        public  List<string> GetAllActiveUser()
-        {
-            return _activeUserCounter.GetActiveUser();
-        }
+        
 
         public async Task<List<string>> GetActiveUsersAsync()
         {
