@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using ProjectsLoader.Mappings.UserMapper;
 using ProjectsScanner.Scanners;
 using Serilog;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,12 +77,12 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<GitHubService>();
 builder.Services.AddScoped<UserService>();
-builder.Services.AddSingleton<ActiveUserCounter>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IndentityService>();
 builder.Services.AddScoped<WebPagesScanner>();
 builder.Services.AddScoped<FileLoaderService>();
 builder.Services.AddScoped<RegistrationService>();
+builder.Services.AddScoped<RedisService>();
 
 builder.Services.AddAutoMapper(typeof(UserMapper));
 
@@ -89,6 +90,9 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddDbContext<PostgresContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("Redis:ConnectionString")));
 
 builder.Services.AddControllers();
 

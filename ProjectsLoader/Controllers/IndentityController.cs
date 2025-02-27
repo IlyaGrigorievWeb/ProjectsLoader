@@ -71,18 +71,18 @@ namespace ProjectsLoader.Controllers
         
         [HttpGet]
         [Route(IndentityControllerRoutes.GetAllActiveUser)]
-        public List<string> GetAllActiveUser()
+        public async Task<List<string>> GetAllActiveUserRedis()
         {
             try
             {
-                var activeUsers = _indentityService.GetAllActiveUser();
-                return activeUsers;
+                return await _indentityService.GetActiveUsersAsync();
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error occurred while fetching active users.");
-                throw new ApplicationException("An error occurred while fetching active users.", ex);
+                Log.Error(ex, "Error occurred while fetching active users from redis.");
+                throw new ApplicationException("An error occurred while fetching active users from redis.", ex);
             }
         }
+        
     }
 }
