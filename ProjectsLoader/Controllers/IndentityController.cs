@@ -6,17 +6,14 @@ using Serilog;
 
 namespace ProjectsLoader.Controllers
 {
-    public static class IndentityControllerRoutes
-    {
-        public const string GetToken = "{login}/{password}";
-        public const string LogOut = "";
-        public const string GetAllActiveUser = "";
-    }
-
     [ApiController]
     [Route("[controller]")]
     public class IndentityController : ControllerBase
     {
+        private const string GetTokenRoute = "{login}/{password}";
+        private const string LogOutRoute = "";
+        private const string GetAllActiveUserRoute = "";
+        
         private readonly IndentityService _indentityService;
 
         public IndentityController(IndentityService indentityService)
@@ -25,7 +22,7 @@ namespace ProjectsLoader.Controllers
         }
 
         [HttpGet]
-        [Route(IndentityControllerRoutes.GetToken)]
+        [Route(GetTokenRoute)]
         public async Task<string> GetToken(string login, string password)
         {
             try
@@ -46,7 +43,7 @@ namespace ProjectsLoader.Controllers
         }
 
         [HttpPost]
-        [Route(IndentityControllerRoutes.LogOut)]
+        [Route(LogOutRoute)]
         public async Task LogOut()
         {
             try
@@ -70,7 +67,7 @@ namespace ProjectsLoader.Controllers
         }
         
         [HttpGet]
-        [Route(IndentityControllerRoutes.GetAllActiveUser)]
+        [Route(GetAllActiveUserRoute)]
         public async Task<List<string>> GetAllActiveUserRedis()
         {
             try

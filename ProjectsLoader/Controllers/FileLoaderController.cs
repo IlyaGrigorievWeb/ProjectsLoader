@@ -4,17 +4,13 @@ using ProjectsLoader.Services;
 using Serilog;
 
 namespace ProjectsLoader.Controllers;
-
-public static class FileLoaderControllerRoutes
-{
-    public const string DownloadFile = "{url}/branch/{branchName}";
-}
-
 [Authorize]
 [ApiController]
 [Route("[controller]")]
 public class FileLoaderController : ControllerBase
 {
+    private const string DownloadFileRoute = "{url}/branch/{branchName}";
+    
     private readonly FileLoaderService _fileLoaderService;
 
     public FileLoaderController(FileLoaderService fileLoaderService)
@@ -27,7 +23,7 @@ public class FileLoaderController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Route(FileLoaderControllerRoutes.DownloadFile)]
+    [Route(DownloadFileRoute)]
     public async Task<bool> DownloadFile(string url, string? branchName = null)
     {
         try

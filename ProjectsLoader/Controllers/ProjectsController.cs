@@ -7,23 +7,19 @@ using ProjectsScanner.Scanners;
 using Serilog;
 
 namespace ProjectsLoader.Controllers;
-
-public static class ProjectsControllerRoutes
-{
-    public const string GetGitHubProject = "{id:guid}";
-    public const string GetAllGitHubProject = "{framework:int}";
-    public const string GetMetaInfoByURL = "{url}";
-    public const string SaveMetaInfoByURL = "{url}";
-    public const string SaveMetaInfo = "";
-    public const string UpdateMetaInfoByURL = "";
-    public const string DeleteMetaInfo = "{id:guid}";
-}
-
 [Authorize]
 [ApiController]
 [Route("[controller]")]
 public class ProjectsController : ControllerBase
 {
+    private const string GetGitHubProjectRoute = "{id:guid}";
+    private const string GetAllGitHubProjectRoute = "{framework:int}";
+    private const string GetMetaInfoByURLRoute = "{url}";
+    private const string SaveMetaInfoByURLRoute = "{url}";
+    private const string SaveMetaInfoRoute = "";
+    private const string UpdateMetaInfoByURLRoute = "";
+    private const string DeleteMetaInfoRoute = "{id:guid}";
+    
     private readonly GitHubService _gitHubService;
 
     public ProjectsController(GitHubService gitHubService)
@@ -32,7 +28,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpGet]
-    [Route(ProjectsControllerRoutes.GetGitHubProject)]
+    [Route(GetGitHubProjectRoute)]
     public async Task<GitHubProject> GetGitHubProject(Guid id)
     {
         try
@@ -47,7 +43,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpGet]
-    [Route(ProjectsControllerRoutes.GetAllGitHubProject)]
+    [Route(GetAllGitHubProjectRoute)]
     public async Task<IList<GitHubProject>> GetAllGitHubProject(WebFrameworks framework)
     {
         try
@@ -62,7 +58,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpGet]
-    [Route(ProjectsControllerRoutes.GetMetaInfoByURL)]
+    [Route(GetMetaInfoByURLRoute)]
     public async Task<GitHubProject> GetMetaInfoByURL(string url)
     {
         try
@@ -77,7 +73,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpPost]
-    [Route(ProjectsControllerRoutes.SaveMetaInfoByURL)]
+    [Route(SaveMetaInfoByURLRoute)]
     public async Task<bool> SaveMetaInfoByURL(string url)
     {
         try
@@ -92,7 +88,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpPost]
-    [Route(ProjectsControllerRoutes.SaveMetaInfo)]
+    [Route(SaveMetaInfoRoute)]
     public async Task<bool> SaveMetaInfo(GitHubProject gitHubProject)
     {
         try
@@ -107,7 +103,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpPut]
-    [Route(ProjectsControllerRoutes.UpdateMetaInfoByURL)]
+    [Route(UpdateMetaInfoByURLRoute)]
     public async Task<bool> UpdateMetaInfoByURL(string url)
     {
         try
@@ -122,7 +118,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpDelete]
-    [Route(ProjectsControllerRoutes.DeleteMetaInfo)]
+    [Route(DeleteMetaInfoRoute)]
     public async Task<bool> DeleteMetaInfo(Guid id, bool isLoadedFromDisk)
     {
         try

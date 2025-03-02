@@ -4,16 +4,12 @@ using ProjectsLoader.Services;
 using Serilog;
 
 namespace ProjectsLoader.Controllers;
-
-public static class RegistrationControllerRoutes
-{
-    public const string CreateUser = "";
-}
-
 [ApiController]
 [Route("[controller]")]
 public class RegistrationController : ControllerBase
 {
+    private const string CreateUserRoute = "";
+    
     private readonly RegistrationService _registrationService;
 
     public RegistrationController(RegistrationService registrationService)
@@ -22,7 +18,7 @@ public class RegistrationController : ControllerBase
     }
 
     [HttpPost]
-    [Route(RegistrationControllerRoutes.CreateUser)]
+    [Route(CreateUserRoute)]
     public async Task<bool> CreateUser(UserInfo userCredentials)
     {
         try
