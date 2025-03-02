@@ -1,4 +1,4 @@
-﻿using Storages.EntitiesStorage;
+﻿using Serilog;
 
 namespace ProjectsLoader.Services;
 
@@ -22,34 +22,60 @@ public class FileLoaderService
     /// <exception cref="Exception"></exception>
     public async Task<bool> DownloadFile(string url, string? branchName = null)
     {
-        if (!string.IsNullOrEmpty(branchName) && url.Contains("https://github.com/"))
+        var decodedUrl = Uri.UnescapeDataString(url);
+        if (!string.IsNullOrEmpty(branchName) && decodedUrl.Contains("https://github.com/"))
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"{url}/archive/refs/heads/{branchName}.zip");
-            response.EnsureSuccessStatusCode();
+            Log.Information("Request for downloading file from {Url} with branch {BranchName}.", decodedUrl, branchName);
+            HttpResponseMessage response = await _httpClient.GetAsync($"{decodedUrl}/archive/refs/heads/{branchName}.zip");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Log.Error("Failed to download file from {Url} with branch {BranchName}. HTTP Status Code: {StatusCode}", decodedUrl, branchName, response.StatusCode);
+                response.EnsureSuccessStatusCode();
+            }
             
-            await _gitHubService.SaveMetaInfoByURL(url);
+            Log.Information("Downloading file from {Url} to branch {BranchName}.", decodedUrl, branchName);
+
+            var IsSavedMetaInfo = await _gitHubService.SaveMetaInfoByURL(decodedUrl);
+            
+            if (!IsSavedMetaInfo)
+            {
+                Log.Error("Failed to save meta info for {Url} to branch {BranchName}.", decodedUrl, branchName);
+            }
+            
             byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
             
             if (fileBytes == null || fileBytes.Length == 0)
             {
+                Log.Error("Failed to download file from {Url} to branch {BranchName}. The file is empty.", decodedUrl, branchName);
                 throw new Exception("Download failed.");
             }
             
-            var sanitizedFileName = $"{url.Replace("https://github.com/", "").Replace("/", "_").Replace(":", "_")}.zip";
+            var sanitizedFileName = $"{decodedUrl.Replace("https://github.com/", "").Replace("/", "_").Replace(":", "_")}.zip";
             await File.WriteAllBytesAsync(sanitizedFileName, fileBytes);
+            Log.Information("File from {Url} successfully downloaded and saved as {FileName}.", decodedUrl, sanitizedFileName);
 
             return true;
         }
         else
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
+            Log.Information("Request for downloading file from {Url}.", decodedUrl);
+            HttpResponseMessage response = await _httpClient.GetAsync(decodedUrl);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                Log.Error("Failed to download file from {Url}. HTTP Status Code: {StatusCode}", decodedUrl, response.StatusCode);
+                response.EnsureSuccessStatusCode();
+            }
+            
+            Log.Information("Downloading file from {Url}.", decodedUrl);
             
             byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
             
-            var sanitizedFileName = url.Replace("/", "_").Replace(":", "_");
+            var sanitizedFileName = decodedUrl.Replace("/", "_").Replace(":", "_");
             await File.WriteAllBytesAsync(sanitizedFileName, fileBytes);
-
+            Log.Information("File from {Url} successfully downloaded and saved as {FileName}.", decodedUrl, sanitizedFileName);
+            
             return true;
         }
     }
