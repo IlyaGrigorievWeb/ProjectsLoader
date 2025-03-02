@@ -92,11 +92,17 @@ builder.Services.AddDbContext<PostgresContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("Redis:ConnectionString")));
+    ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("Redis:Cache")));
 
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<PostgresContext>();
+    dbContext.Database.Migrate();
+}
 
 app.UseMiddleware<CheckUserMiddleware>();
 app.UseSwagger();

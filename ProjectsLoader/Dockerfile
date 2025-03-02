@@ -8,6 +8,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["ProjectsLoader/ProjectsLoader.csproj", "ProjectsLoader/"]
+COPY ["Contracts/Contracts.csproj", "Contracts/"]
+COPY ["Storages/Storages.csproj", "Storages/"]
 RUN dotnet restore "ProjectsLoader/ProjectsLoader.csproj"
 COPY . .
 WORKDIR "/src/ProjectsLoader"
