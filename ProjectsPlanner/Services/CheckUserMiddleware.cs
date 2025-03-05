@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Contracts.Interfaces;
-using ProjectsLoader.Services;
+using ProjectsPlanner.Services;
 
 public class CheckUserMiddleware
 {

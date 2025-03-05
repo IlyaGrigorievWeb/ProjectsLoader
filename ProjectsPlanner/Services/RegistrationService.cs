@@ -3,10 +3,10 @@ using Contracts.Entities;
 using Contracts.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ProjectsLoader.Models.Infos;
+using ProjectsPlanner.Models.Infos;
 using Storages.EntitiesStorage;
 
-namespace ProjectsLoader.Services;
+namespace ProjectsPlanner.Services;
 
 public class RegistrationService
 {

@@ -1,10 +1,10 @@
 ﻿using System.Security.Claims;
 using Contracts.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using ProjectsLoader.Services;
+using ProjectsPlanner.Services;
 using Serilog;
 
-namespace ProjectsLoader.Controllers
+namespace ProjectsPlanner.Controllers
 {
     [ApiController]
     [Route("[controller]")]

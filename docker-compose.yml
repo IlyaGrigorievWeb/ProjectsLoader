@@ -3,7 +3,7 @@
     image: projectsloader
     build:
       context: .
-      dockerfile: ProjectsLoader/Dockerfile
+      dockerfile: ProjectsPlanner/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
     ports:

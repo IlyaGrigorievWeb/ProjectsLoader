@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsLoader", "ProjectsLoader\ProjectsLoader.csproj", "{A7DD8609-164B-4EF7-84C6-60FF25DE25CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsPlanner", "ProjectsPlanner\ProjectsPlanner.csproj", "{A7DD8609-164B-4EF7-84C6-60FF25DE25CB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8C9032D3-E3CE-4D56-AECD-F02CF6D71615}"
 	ProjectSection(SolutionItems) = preProject

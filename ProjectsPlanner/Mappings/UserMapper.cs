@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Contracts.Entities;
-using ProjectsLoader.Models.Infos;
+using ProjectsPlanner.Models.Infos;
 
-namespace ProjectsLoader.Mappings.UserMapper;
+namespace ProjectsPlanner.Mappings.UserMapper;
 
 public class UserMapper : Profile
 {

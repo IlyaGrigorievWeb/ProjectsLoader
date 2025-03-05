@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Storages.EntitiesStorage;
 using System.Net.Http;
 using AutoMapper;
-using ProjectsLoader.Models.Infos;
+using ProjectsPlanner.Models.Infos;
 
-namespace ProjectsLoader.Services
+namespace ProjectsPlanner.Services
 {
     public class UserService
     {

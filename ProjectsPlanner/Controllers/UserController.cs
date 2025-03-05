@@ -2,10 +2,10 @@
 using Contracts.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ProjectsLoader.Services;
+using ProjectsPlanner.Services;
 using Serilog;
 
-namespace ProjectsLoader.Controllers
+namespace ProjectsPlanner.Controllers
 {
     [Authorize]
     [ApiController]

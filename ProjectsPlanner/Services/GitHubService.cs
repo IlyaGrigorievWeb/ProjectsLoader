@@ -6,7 +6,7 @@ using ProjectsScanner.Scanners;
 using Storages.EntitiesStorage;
 using System.Globalization;
 
-namespace ProjectsLoader.Services;
+namespace ProjectsPlanner.Services;
 
 public class GitHubService
 {

@@ -1,4 +1,4 @@
-using ProjectsLoader.Services;
+using ProjectsPlanner.Services;
 using Storages.EntitiesStorage;
 using Microsoft.EntityFrameworkCore;
 using Contracts.Interfaces;
@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using ProjectsLoader.Mappings.UserMapper;
+using ProjectsPlanner.Mappings.UserMapper;
 using ProjectsScanner.Scanners;
 using Serilog;
 using StackExchange.Redis;

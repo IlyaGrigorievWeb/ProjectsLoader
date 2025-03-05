@@ -1,7 +1,7 @@
 ﻿using Contracts.Interfaces;
 using System.Security.Cryptography;
 
-namespace ProjectsLoader.Services
+namespace ProjectsPlanner.Services
 {
     public class PasswordHasher : IPasswordHasher
     {

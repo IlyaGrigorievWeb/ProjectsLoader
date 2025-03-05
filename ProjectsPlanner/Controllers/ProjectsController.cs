@@ -2,11 +2,11 @@
 using Contracts.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ProjectsLoader.Services;
+using ProjectsPlanner.Services;
 using ProjectsScanner.Scanners;
 using Serilog;
 
-namespace ProjectsLoader.Controllers;
+namespace ProjectsPlanner.Controllers;
 [Authorize]
 [ApiController]
 [Route("[controller]")]

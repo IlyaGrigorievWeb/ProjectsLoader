@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ProjectsLoader.Models.Infos;
-using ProjectsLoader.Services;
+using ProjectsPlanner.Models.Infos;
+using ProjectsPlanner.Services;
 using Serilog;
 
-namespace ProjectsLoader.Controllers;
+namespace ProjectsPlanner.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class RegistrationController : ControllerBase
