@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storages", "Storages\Storag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsScanner", "ProjectsScanner\ProjectsScanner.csproj", "{F64F9B52-4740-4DEB-81BF-DA43623FFE48}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectLoader", "ProjectLoader\ProjectLoader.csproj", "{ECEFAEEC-8FCE-45ED-A992-287804B6378B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,5 +37,9 @@ Global
 		{F64F9B52-4740-4DEB-81BF-DA43623FFE48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F64F9B52-4740-4DEB-81BF-DA43623FFE48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F64F9B52-4740-4DEB-81BF-DA43623FFE48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECEFAEEC-8FCE-45ED-A992-287804B6378B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECEFAEEC-8FCE-45ED-A992-287804B6378B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECEFAEEC-8FCE-45ED-A992-287804B6378B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECEFAEEC-8FCE-45ED-A992-287804B6378B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
