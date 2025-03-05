@@ -1,6 +1,6 @@
 ﻿services:
-  projectsloader:
-    image: projectsloader
+  projectsplanner:
+    image: projectsplanner
     build:
       context: .
       dockerfile: ProjectsPlanner/Dockerfile
@@ -12,6 +12,15 @@
       - postgres_db
       - redis-cache
       - redis-queue
+  
+  projectsloader:
+    image: projectsloader
+    build:
+      context: .
+      dockerfile: ProjectLoader/Dockerfile
+    depends_on:
+      - redis-queue
+      
 
   postgres_db:
     image: postgres:latest
