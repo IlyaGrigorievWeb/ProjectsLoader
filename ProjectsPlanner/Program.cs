@@ -91,8 +91,22 @@ builder.Services.AddHttpClient();
 builder.Services.AddDbContext<PostgresContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("Redis:Cache")));
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(sp.GetRequiredService<IConfiguration>().GetValue<string>("Redis:Cache")));
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(sp.GetRequiredService<IConfiguration>().GetValue<string>("Redis:Queue")));
+
+builder.Services.AddSingleton<Func<string, IConnectionMultiplexer>>(sp => name =>
+{
+    var connections = sp.GetServices<IConnectionMultiplexer>().ToList();
+    return name switch
+    {
+        "cache" => connections[0],
+        "queue" => connections[1],
+        _ => throw new ArgumentException("Unknown Redis connection name")
+    };
+});
 
 builder.Services.AddControllers();
 

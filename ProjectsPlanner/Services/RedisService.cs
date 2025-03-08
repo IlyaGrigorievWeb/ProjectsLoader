@@ -7,8 +7,9 @@ public class RedisService
 {
     private readonly IDatabase _database;
 
-    public RedisService(IConnectionMultiplexer connectionMultiplexer)
+    public RedisService(Func<string, IConnectionMultiplexer> connectionFactory)
     {
+        var connectionMultiplexer = connectionFactory("cache");
         _database = connectionMultiplexer.GetDatabase();
     }
     

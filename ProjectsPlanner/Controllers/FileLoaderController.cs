@@ -19,20 +19,22 @@ public class FileLoaderController : ControllerBase
     }
 
     /// <summary>
-    /// Download file
+    /// Adds a project to the download queue
     /// </summary>
+    /// <param name="url"></param>
+    /// <param name="branchName"></param>
     /// <returns></returns>
-    [HttpGet]
+    [HttpPost]
     [Route(DownloadFileRoute)]
-    public async Task<bool> DownloadFile(string url, string? branchName = null)
+    public async Task<bool> SetToQueue(string url, string? branchName = null)
     {
         try
         {
-            return await _fileLoaderService.DownloadFile(url, branchName);
+            return await _fileLoaderService.SetToQueue(url, branchName);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Log.Error(ex, "Error downloading file from URL: {Url} and branch: {BranchName}", url, branchName);
+            Log.Error(e, "Error add to queue file from URL: {Url} and branch: {BranchName}", url, branchName);
             
             return false;
         }
