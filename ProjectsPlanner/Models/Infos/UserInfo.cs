@@ -1,4 +1,4 @@
-﻿namespace ProjectsLoader.Models.Infos
+﻿namespace ProjectsPlanner.Models.Infos
 {
     public class UserInfo
     {
