@@ -4,13 +4,13 @@ using Serilog;
 
 namespace ProjectLoader.Services
 {
-    public class ProjectLoaderService : BackgroundService
+    public class ProjectLoaderJob : BackgroundService
     {
-        private readonly ILogger<ProjectLoaderService> _logger;
+        private readonly ILogger<ProjectLoaderJob> _logger;
         private readonly IDatabase _database;
         private readonly HttpClient _httpClient;
 
-        public ProjectLoaderService(ILogger<ProjectLoaderService> logger, Func<string, IConnectionMultiplexer> connectionFactory, HttpClient httpClient)
+        public ProjectLoaderJob(ILogger<ProjectLoaderJob> logger, Func<string, IConnectionMultiplexer> connectionFactory, HttpClient httpClient)
         {
             _logger = logger;
             var connectionMultiplexer = connectionFactory("queue");

@@ -29,7 +29,7 @@ builder.Services.AddSingleton<Func<string, IConnectionMultiplexer>>(sp => name =
     };
 });
 
-builder.Services.AddHostedService<ProjectLoaderService>();
+builder.Services.AddHostedService<ProjectLoaderJob>();
 builder.Services.AddHttpClient();
 
 var host = builder.Build();
