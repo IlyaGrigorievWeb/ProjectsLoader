@@ -6,7 +6,7 @@ using ProjectsScanner.Scanners;
 using Storages.EntitiesStorage;
 using System.Globalization;
 
-namespace ProjectsLoader.Services;
+namespace ProjectsPlanner.Services;
 
 public class GitHubService
 {
@@ -49,8 +49,11 @@ public class GitHubService
         {
             throw new Exception("Failed to get metadata");
         }
-
-        if (url.Contains(metaData.UrlPostfix))
+        
+        var existingMetaData = _context.GitHubProjects
+            .FirstOrDefault(x => x.UrlPostfix.Contains(metaData.UrlPostfix));
+        
+        if (existingMetaData != null)
         {
             return await UpdateMetaInfoByURL(url);
         }

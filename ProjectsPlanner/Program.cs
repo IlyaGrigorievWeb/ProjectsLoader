@@ -1,4 +1,4 @@
-using ProjectsLoader.Services;
+using ProjectsPlanner.Services;
 using Storages.EntitiesStorage;
 using Microsoft.EntityFrameworkCore;
 using Contracts.Interfaces;
@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using ProjectsLoader.Mappings.UserMapper;
+using ProjectsPlanner.Mappings.UserMapper;
 using ProjectsScanner.Scanners;
 using Serilog;
 using StackExchange.Redis;
@@ -91,8 +91,22 @@ builder.Services.AddHttpClient();
 builder.Services.AddDbContext<PostgresContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("Redis:Cache")));
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(sp.GetRequiredService<IConfiguration>().GetValue<string>("Redis:Cache")));
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(sp.GetRequiredService<IConfiguration>().GetValue<string>("Redis:Queue")));
+
+builder.Services.AddSingleton<Func<string, IConnectionMultiplexer>>(sp => name =>
+{
+    var connections = sp.GetServices<IConnectionMultiplexer>().ToList();
+    return name switch
+    {
+        "cache" => connections[0],
+        "queue" => connections[1],
+        _ => throw new ArgumentException("Unknown Redis connection name")
+    };
+});
 
 builder.Services.AddControllers();
 

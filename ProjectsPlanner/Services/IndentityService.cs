@@ -7,7 +7,7 @@ using Contracts.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ProjectsLoader.Services
+namespace ProjectsPlanner.Services
 {
     public class IndentityService
     {
