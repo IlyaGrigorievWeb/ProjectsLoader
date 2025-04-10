@@ -5,22 +5,13 @@ using System.Text.Json;
 
 namespace ProjectsScanner.Scanners;
 
-public class WebPagesScanner : IProjectScanner
+public class WebPagesScanner : IWebPagesScanner
 {
     private readonly HttpClient _httpClient;
 
     public WebPagesScanner(HttpClient httpClient)
     {
         _httpClient = httpClient;
-    }
-    public string getProjectLanguage()
-    {
-        throw new NotImplementedException();
-    }
-
-    public WebFrameworks getProjectWebFramework()
-    {
-        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -30,9 +21,8 @@ public class WebPagesScanner : IProjectScanner
     /// <returns></returns>
     public async Task<GitHubProject> GetGitHubProject(string url)
     {
-        WebFrameworks webFramework = WebFrameworks.Uncertain;
-
-        string urlPostfix = url.Replace("https://github.com/", "");
+        string decodedUrl = Uri.UnescapeDataString(url);
+        string urlPostfix = decodedUrl.Replace("https://github.com/", "");
         var segments = urlPostfix.Split('/');
         var owner = segments[0];
         var repo = segments[1];
@@ -45,13 +35,21 @@ public class WebPagesScanner : IProjectScanner
         responseToApi.EnsureSuccessStatusCode();
 
         var jsonContent = await responseToApi.Content.ReadAsStringAsync();
-
-        var repoInfo = JsonSerializer.Deserialize<GitHubApiResponse>(jsonContent);
-
+        
         var responseToApiForReadme = await _httpClient.GetAsync($"{apiGitHubUrl}{owner}/{repo}/readme");
         responseToApiForReadme.EnsureSuccessStatusCode();
-
+        
         var jsonReadme = await responseToApiForReadme.Content.ReadAsStringAsync();
+
+        var metaData = GetInfoProject(jsonContent, jsonReadme, urlPostfix);
+
+        return metaData;
+    }
+
+    private GitHubProject GetInfoProject(string jsonContent, string jsonReadme, string urlPostfix)
+    {
+        WebFrameworks webFramework = WebFrameworks.Uncertain;
+        var repoInfo = JsonSerializer.Deserialize<GitHubApiResponse>(jsonContent);
 
         if (!string.IsNullOrEmpty(jsonReadme))
         {
@@ -80,7 +78,14 @@ public class WebPagesScanner : IProjectScanner
             CreationDate = repoInfo.created_at,
             DefaultBranch = repoInfo.default_branch,
         };
-
+        
         return metaData;
+    }
+
+    public async Task<GitHubProject> GetGitHubProject(User user, string repoName)
+    {
+        string url = "https://github.com/" + user.Login + "/" + repoName;
+        var project = await GetGitHubProject(url);
+        return project;
     }
 }

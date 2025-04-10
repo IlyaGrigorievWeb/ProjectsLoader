@@ -12,9 +12,9 @@ public class GitHubService
 {
 
     private readonly PostgresContext _context;
-    private readonly WebPagesScanner _webPagesScanner;
+    private readonly IWebPagesScanner _webPagesScanner;
 
-    public GitHubService(PostgresContext context, WebPagesScanner webPagesScanner)
+    public GitHubService(PostgresContext context, IWebPagesScanner webPagesScanner)
     {
         _context = context;
         _webPagesScanner = webPagesScanner;
