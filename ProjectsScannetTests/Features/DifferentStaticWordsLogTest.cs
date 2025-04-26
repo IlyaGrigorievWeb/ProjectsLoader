@@ -1,31 +1,29 @@
 ﻿using ProjectsScanner.Scanners.ProjectsLogs;
 using ProjectsScannetTests.Framework;
-using Xunit;
 using Xunit.Abstractions;
 
-namespace ProjectsScanner.Tests.LogsTests.Features;
+namespace ProjectsScannetTests.Features;
 
-public class BigCodeSmallLogTest : FileTestBase, IClassFixture<IOFilesFixture>
+public class DifferentStaticWordsLogTest : FileTestBase, IClassFixture<IOFilesFixture>
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly string _code;
-    private readonly string _logRow = "[02/11/2025 00:13:58] [Thread 1] Executing ConsolePrinter (Input: String, Output: Void)";
+    private readonly string _logRow = "";
 
-    public BigCodeSmallLogTest(IOFilesFixture testFilesStorage, ITestOutputHelper testOutputHelper)
+    public DifferentStaticWordsLogTest(IOFilesFixture testFilesStorage, ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
         _code = testFilesStorage.GetFileContent(InputFileName);
     }
-    
+
     //TODO Support asserts by gold file (_testOutputHelper)
+
     [Fact]
     public void GetView()
     {
         LogsAnalyzer logsAnalyzer = new LogsAnalyzer(_code);
         var logsNodes = logsAnalyzer.GetLoggingNodes();
-        var patternsMap = LogsAnalyzer.GetPatternsHashMap(logsNodes);
-        var result = logsAnalyzer.GetPotentialCalls(_logRow); 
-        Assert.Equal(4, result.Count());
+        var result = LogsAnalyzer.GetPatternsHashMap(logsNodes);
+        Assert.Equal(6, result.Count());
     }
-    
 }

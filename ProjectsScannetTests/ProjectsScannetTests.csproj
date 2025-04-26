@@ -22,7 +22,6 @@
 
     <ItemGroup>
       <Folder Include="Features\OneClassSimpleLog\" />
-      <Folder Include="Features\SmallCodeBigLog\" />
     </ItemGroup>
 
     <ItemGroup>

@@ -19,7 +19,8 @@ public class IOFilesFixture : IDisposable
             _classesWithContent[Path.GetFileNameWithoutExtension(filePath)] = File.ReadAllLines(filePath);
         }
     }
-
+    
+    //TODO neeed to remove Features after test run 
     public string GetFileContent(string suiteName)
     {
         return _classesWithContent[suiteName].Aggregate(new StringBuilder(),
