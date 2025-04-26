@@ -1,4 +1,7 @@
-﻿using ProjectsScanner.Scanners.ProjectsLogs;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ProjectsScanner.Scanners.ClusteringAnalyzer;
+using ProjectsScanner.Scanners.ProjectsLogs;
+using ProjectsScannetTests.Features;
 using ProjectsScannetTests.Framework;
 using Xunit;
 using Xunit.Abstractions;
@@ -27,5 +30,49 @@ public class BigCodeSmallLogTest : FileTestBase, IClassFixture<IOFilesFixture>
         var result = logsAnalyzer.GetPotentialCalls(_logRow); 
         Assert.Equal(4, result.Count());
     }
+
+    [Fact]
+    public void TestClusteringAnalyzer()
+    {
+        var definition = IClusteringDefinition<ClusteringModel>.Builder()
+            .Trigger(syntaxNode => syntaxNode is MethodDeclarationSyntax)
+            .Transform(syntaxNode => CountNumberOfLogInvocations((MethodDeclarationSyntax)syntaxNode))
+            .Fold(new ClusteringModel.MeanAggregation(), (aggregation, countPerMethod) =>
+            {
+                if (countPerMethod <= 0) return aggregation;
+                aggregation.Count++;
+                aggregation.Sum += countPerMethod;
+                return aggregation;
+            }).MapResult((model, aggregation) =>
+            {
+                if (aggregation.Count <= 0) return;
+                model.AverageLogInvocationsPerMethod = aggregation.Sum / (double)aggregation.Count;
+                model.LogInvocationsCount += aggregation.Sum;
+            });
+
+        var analyzer = new ClusteringAnalyzer<ClusteringModel>(definition, () => new ClusteringModel());
+
+        var codeModel = analyzer.Analyse(_code);
+        
+        Assert.Equal(4, codeModel.LogInvocationsCount);
+        _testOutputHelper.WriteLine($"Average log invocation is {codeModel.AverageLogInvocationsPerMethod}");
+        _testOutputHelper.WriteLine($"Total invocation count is {codeModel.LogInvocationsCount}");
+    }
     
+    static int CountNumberOfLogInvocations(MethodDeclarationSyntax methodDeclarationNode)
+    {
+        int count = 0;
+
+        foreach (var invocation in methodDeclarationNode.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        {
+            var memberAccess = invocation.Expression as MemberAccessExpressionSyntax;
+            if (memberAccess != null &&
+                memberAccess.Name.Identifier.Text.Contains("log", StringComparison.OrdinalIgnoreCase))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
 }
