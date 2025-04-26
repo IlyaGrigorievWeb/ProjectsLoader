@@ -7,33 +7,18 @@ using Microsoft.ML.Data;
 
 namespace ProjectsScanner.Scanners.ProjectsLogs;
 
-public interface IAnalyzer
+//TODO Need to support different endpoints: project file path based, SyntaxNode based and one file (class) based 
+public class LogsAnalyzer
 {
-    public void StartAnalyze();
-}
-
-/*
-If we see [].log[]("test") -> save text to call node 
-*/
-
-public class LogsAnalyzer : IAnalyzer
-{
-    //TODO work on it
-    private SyntaxNode _endpointNode = null;
-    // public LogsAnalyzer(SyntaxNode endpointNode)
-    // {
-    //     _endpointNode = endpointNode;
-    // }
-
+    //Tried to use ML MS libs and levenshtein distance. Regex is an optimal way for MVP of "LogsAnalyzer"
+    private SyntaxNode _endpointNode = null; //TODO Better to use Roslyn tree here
     private string _code;
     public LogsAnalyzer(string code)
     {
         _code = code;
     }
     
-    
-    //----------------------------------------------------------------------
-    public void StartAnalyze()
+    public void StartAndPrint()
     {
         var tree = CSharpSyntaxTree.ParseText(_code);
         var root = tree.GetRoot();
@@ -65,9 +50,9 @@ public class LogsAnalyzer : IAnalyzer
             });
         }
 
-        PrintCommentTree(classCommentTree);
+        LogsAnalyzerViewBuilder.PrintCommentTree(classCommentTree);
     }
-    static List<string> GetLeadingComments(SyntaxNode node)
+    List<string> GetLeadingComments(SyntaxNode node)
     {
         var trivia = node.GetLeadingTrivia();
         return trivia
@@ -76,37 +61,7 @@ public class LogsAnalyzer : IAnalyzer
             .Select(t => t.ToString().Trim())
             .ToList();
     }
-    static void PrintCommentTree(List<ClassCommentNode> classCommentTree)
-    {
-        foreach (var classNode in classCommentTree)
-        {
-            Console.WriteLine($"Class: {classNode.ClassName}");
-
-            if (classNode.ClassComments.Any())
-            {
-                Console.WriteLine("  Comments:");
-                foreach (var comment in classNode.ClassComments)
-                {
-                    Console.WriteLine($"    {comment}");
-                }
-            }
-
-            foreach (var methodNode in classNode.Methods)
-            {
-                Console.WriteLine($"  Method: {methodNode.MethodName}");
-                if (methodNode.Comments.Any())
-                {
-                    Console.WriteLine("    Comments:");
-                    foreach (var comment in methodNode.Comments)
-                    {
-                        Console.WriteLine($"      {comment}");
-                    }
-                }
-            }
-        }
-    }
-    //----------------------------------------------------------------------
-
+    
     public List<LoggerCallNode> GetLoggingNodes()
     {
         var tree = CSharpSyntaxTree.ParseText(_code);
@@ -129,7 +84,8 @@ public class LogsAnalyzer : IAnalyzer
                 {
                     // Check if the invocation matches the pattern [...].[...log...](...)
                     var memberAccess = invocation.Expression as MemberAccessExpressionSyntax;
-                    if (memberAccess != null && memberAccess.Name.Identifier.Text.Contains("log", StringComparison.OrdinalIgnoreCase))
+                    if ((memberAccess != null && memberAccess.Name.Identifier.Text.Contains("log", StringComparison.OrdinalIgnoreCase))
+                        || invocation.Parent!.GetText().ToString().Trim().StartsWith("log", StringComparison.OrdinalIgnoreCase))
                     {
                         // Extract the argument passed to the logging call
                         var argumentList = invocation.ArgumentList.Arguments;
@@ -162,19 +118,16 @@ public class LogsAnalyzer : IAnalyzer
                             }
 
                             //Saving over arguments
-                            var overArguments = new List<Tuple<string, string>>();
+                            var overArguments = new Dictionary<string, string>();
+                            var argumentsInOrder = new string[argumentList.Count-1];
                             //Save arguments except 0 index (only arguments)
                             if (argumentList.Count > 1)
                             {
-                                for (int i = 0; i < argumentList.Count - 1; i++)
+                                for (int i = 1; i < argumentList.Count; i++)
                                 {
-                                    if (i != 0)
-                                    {
-                                        overArguments.Add(Tuple.Create<string, string>(
-                                            "",//TODO: not implemented reading type of arguments argumentList[i].Expression.GetMemberType(),
-                                            argumentList[i].GetText().ToString()
-                                        ));
-                                    }
+                                    //TODO: not implemented reading type of arguments argumentList[i].Expression.GetMemberType()
+                                    overArguments[argumentList[i].GetText().ToString()] = "UnknownType";
+                                    argumentsInOrder[i-1] = argumentList[i].GetText().ToString();
                                 }
                             }
 
@@ -186,7 +139,8 @@ public class LogsAnalyzer : IAnalyzer
                                         ClassName = classNode.Identifier.Text,
                                         MethodName = methodName,
                                         LogText = logMessage,
-                                        Parameters = overArguments
+                                        ParametersInOrder = argumentsInOrder,
+                                        Parameters = overArguments,
                                     });
                             }
                         }
@@ -196,6 +150,20 @@ public class LogsAnalyzer : IAnalyzer
             
         }
         
+        return result;
+    }
+
+    public static Dictionary<string, List<LoggerCallNode>> GetPatternsHashMap(List<LoggerCallNode> callNodes)
+    {
+        var result = new Dictionary<string, List<LoggerCallNode>>();
+        foreach (var node in callNodes)
+        {
+            var key = String.Join("|", node.SplitLogText());
+            if (!result.ContainsKey(key))
+                result[key] = new List<LoggerCallNode>();
+            result[key].Add(node);
+        }
+
         return result;
     }
 
@@ -232,208 +200,4 @@ public class LogsAnalyzer : IAnalyzer
             return false;
         });
     }
-    
-    static int CalculateLevenshteinDistance(string source, string target)
-    {
-        int[,] dp = new int[source.Length + 1, target.Length + 1];
-
-        for (int i = 0; i <= source.Length; i++)
-            dp[i, 0] = i;
-        for (int j = 0; j <= target.Length; j++)
-            dp[0, j] = j;
-
-        for (int i = 1; i <= source.Length; i++)
-        {
-            for (int j = 1; j <= target.Length; j++)
-            {
-                int cost = source[i - 1] == target[j - 1] ? 0 : 1;
-
-                dp[i, j] = Math.Min(
-                    Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1),
-                    dp[i - 1, j - 1] + cost);
-            }
-        }
-
-        return dp[source.Length, target.Length];
-    }
-    
-    public static string FindBestMatchPosition(string original, string query)
-    {
-        var mlContext = new MLContext();
-
-        string[] words = original.Split(' ');
-        List<string> subTexts = new List<string>();
-
-        // Generate combinations of input text
-        for (int i = 0; i < words.Length; i++)
-        {
-            for (int length = 1; length <= words.Length - i; length++)
-            {
-                subTexts.Add(string.Join(" ", words.Skip(i).Take(length)));
-            }
-        }
-
-        // Initialize data-set
-        var data = subTexts.Select(text => new InputData { Text = text }).ToList();
-        var trainData = mlContext.Data.LoadFromEnumerable(data);
-
-        // Create pipeline with TF-IDF
-        var pipeline = mlContext.Transforms.Text.FeaturizeText("Features", nameof(InputData.Text));
-        var model = pipeline.Fit(trainData);
-
-        // Transform data
-        var transformedData = model.Transform(trainData);
-        var featureData = mlContext.Data.CreateEnumerable<TransformedData>(transformedData, reuseRowObject: false).ToList();
-
-        // Vectorized query
-        var queryData = mlContext.Data.LoadFromEnumerable(new List<InputData> { new InputData { Text = query } });
-        var queryTransformed = model.Transform(queryData);
-        var queryFeature = mlContext.Data.CreateEnumerable<TransformedData>(queryTransformed, reuseRowObject: false).First().Features;
-
-        // Search nearest result
-        int bestIndex = -1;
-        double bestSimilarity = -1;
-
-        for (int i = 0; i < featureData.Count; i++)
-        {
-            double similarity = CosineSimilarity(featureData[i].Features, queryFeature);
-            if (similarity > bestSimilarity)
-            {
-                bestSimilarity = similarity;
-                bestIndex = i;
-            }
-        }
-
-        return subTexts[bestIndex];
-        //return FindOriginalIndex(original, subTexts[bestIndex]);
-    }
-
-    static int FindOriginalIndex(string original, string subText)
-    {
-        var words = original.Split(' ');
-        var subWords = subText.Split(' ');
-
-        for (int i = 0; i <= words.Length - subWords.Length; i++)
-        {
-            if (string.Join(" ", words.Skip(i).Take(subWords.Length)) == subText)
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    static double CosineSimilarity(float[] vectorA, float[] vectorB)
-    {
-        double dotProduct = 0;
-        double magnitudeA = 0;
-        double magnitudeB = 0;
-
-        for (int i = 0; i < vectorA.Length; i++)
-        {
-            dotProduct += vectorA[i] * vectorB[i];
-            magnitudeA += Math.Pow(vectorA[i], 2);
-            magnitudeB += Math.Pow(vectorB[i], 2);
-        }
-
-        magnitudeA = Math.Sqrt(magnitudeA);
-        magnitudeB = Math.Sqrt(magnitudeB);
-
-        return (magnitudeA == 0 || magnitudeB == 0) ? 0 : dotProduct / (magnitudeA * magnitudeB);
-    }
-
-    public class InputData { public string Text { get; set; } }
-    public class TransformedData : InputData { public float[] Features { get; set; } }
-    
-    //TODO add view builder as separate class
-    public static string GetView(List<LoggerCallNode> logNodes)
-    {
-        var stringResult = "";
-        
-        var groupedLogs = logNodes
-            .GroupBy(node => node.ClassName)
-            .Select(classGroup => new
-            {
-                ClassName = classGroup.Key,
-                Methods = classGroup
-                    .GroupBy(node => node.MethodName)
-                    .Select(methodGroup => new
-                    {
-                        MethodName = methodGroup.Key,
-                        LogTexts = methodGroup.Select(node => node.LogText).ToList()
-                    }).ToList()
-            });
-
-        foreach (var classGroup in groupedLogs)
-        {
-            stringResult += $"\n{classGroup.ClassName} :";
-            foreach (var methodGroup in classGroup.Methods)
-            {
-                stringResult += $"\n    {methodGroup.MethodName} :";
-                stringResult += $"\n      {string.Join(",\n      ", methodGroup.LogTexts)}";
-            }
-        }
-        
-        return stringResult;
-    }
-
-    public static SyntaxNode buildParentSyntaxNode(string projectPath, string endpointClassName)
-    {
-        throw new NotImplementedException();
-    }
-    
-    public static SyntaxNode buildParentSyntaxNode(string classPath)
-    {
-        throw new NotImplementedException();
-    }
-}
-
-// public class SyntaxNode
-// {
-//     SyntaxNodeType _nodeType;
-//     string _content;
-//     List<SyntaxNode> _children;
-//
-//     public SyntaxNode(List<SyntaxNode> children, string content, SyntaxNodeType nodeType)
-//     {
-//         _children = children;
-//         _content = content;
-//         _nodeType = nodeType;
-//     }
-// }
-
-public enum SyntaxNodeType
-{
-    Class,
-    Constructor,
-    Infrasctructure,
-    Method,
-    StaticMethod,
-    Condition,
-    Cycle
-}
-
-public class LoggerCallNode
-{
-    public string ClassName { get; set; }
-    
-    public string MethodName { get; set; }
-    
-    public string LogText { get; set; }
-
-    public List<Tuple<string, string>> Parameters { get; set; }
-}
-
-public class ClassCommentNode
-{
-    public string ClassName { get; set; }
-    public List<string> ClassComments { get; set; } = new();
-    public List<MethodCommentNode> Methods { get; set; } = new();
-}
-
-public class MethodCommentNode
-{
-    public string MethodName { get; set; }
-    public List<string> Comments { get; set; } = new();
 }

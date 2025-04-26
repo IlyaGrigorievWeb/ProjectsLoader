@@ -19,4 +19,9 @@
       <PackageReference Include="xunit" Version="2.5.3" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Scanners\ProjectsLogs\LogsTreeBuilders\" />
+      <Folder Include="Scanners\ProjectsLogs\LogsTreeProcessors\" />
+    </ItemGroup>
+
 </Project>
