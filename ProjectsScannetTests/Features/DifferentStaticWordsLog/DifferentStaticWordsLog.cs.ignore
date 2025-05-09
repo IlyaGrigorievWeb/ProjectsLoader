@@ -1,0 +1,45 @@
+﻿namespace ProjectsScanner.Tests.LogsTests.Features.DifferentStaticWordsLog;
+
+public class DifferentStaticWordsLog
+{
+    public List<string> Process(List<string> rows)
+    {
+        Log("Step 1: Removing patterns <|content|> from strings");
+        for (int i = 0; i < rows.Count; i++)
+        {
+            rows[i] = Regex.Replace(rows[i], "<\|.*?\|>", "");
+            Log($"Processed row {i + 1}/{rows.Count}");
+        }
+
+        Log("Step 2: Keeping only unique words in each row");
+        for (int i = 0; i < rows.Count; i++)
+        {
+            var words = rows[i].Split(' ', StringSplitOptions.RemoveEmptyEntries).Distinct();
+            rows[i] = string.Join(" ", words);
+            Log($"Processed row {i + 1}/{rows.Count}");
+        }
+
+        Log("Step 3: Extracting all unique words and sorting by frequency");
+        var wordFrequency = new Dictionary<string, int>();
+        foreach (var row in rows)
+        {
+            foreach (var word in row.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (wordFrequency.ContainsKey(word))
+                    wordFrequency[word]++;
+                else
+                    wordFrequency[word] = 1;
+            }
+        }
+
+        Log("Sorting words by frequency");
+        var sortedWords = wordFrequency.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).ToList();
+        Log("Processing complete");
+        return sortedWords;
+    }
+
+    private void Log(string text)
+    {
+        Console.WriteLine($"[LOG] {text}");
+    }
+}

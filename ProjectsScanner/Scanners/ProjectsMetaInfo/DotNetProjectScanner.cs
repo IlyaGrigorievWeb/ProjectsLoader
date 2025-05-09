@@ -1,8 +1,9 @@
-﻿using Contracts.Interfaces;
+﻿using Contracts.Entities;
+using Contracts.Interfaces;
 
 namespace ProjectsScanner.Scanners;
 
-public class DotNetProjectScanner : ICodeScanner
+public class DotNetProjectScanner<T> : ICodeScanner<GitHubProject>
 {
     
     public WebFrameworks getProjectWebFramework()
@@ -15,12 +16,12 @@ public class DotNetProjectScanner : ICodeScanner
         throw new NotImplementedException();
     }
 
-    public bool isLoggingSupported()
+    public GitHubProject isLoggingSupported()
     {
         throw new NotImplementedException();
     }
 
-    public string getLoggerFramework()
+    public GitHubProject getLoggerFramework()
     {
         throw new NotImplementedException();
     }
