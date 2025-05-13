@@ -5,6 +5,7 @@ using Storages.EntitiesStorage;
 using System.Net.Http;
 using AutoMapper;
 using ProjectsPlanner.Models.Infos;
+using ProjectsPlanner.Services.Interfaces;
 
 namespace ProjectsPlanner.Services
 {

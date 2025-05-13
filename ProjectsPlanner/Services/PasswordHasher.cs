@@ -1,5 +1,6 @@
 ﻿using Contracts.Interfaces;
 using System.Security.Cryptography;
+using ProjectsPlanner.Services.Interfaces;
 
 namespace ProjectsPlanner.Services
 {

@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using ProjectsPlanner.Mappings.UserMapper;
+using ProjectsPlanner.Services.Interfaces;
 using ProjectsScanner.Scanners;
 using Serilog;
 using StackExchange.Redis;

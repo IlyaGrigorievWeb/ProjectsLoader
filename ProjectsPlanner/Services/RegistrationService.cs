@@ -4,6 +4,7 @@ using Contracts.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProjectsPlanner.Models.Infos;
+using ProjectsPlanner.Services.Interfaces;
 using Storages.EntitiesStorage;
 
 namespace ProjectsPlanner.Services;

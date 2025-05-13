@@ -6,6 +6,7 @@ using Contracts.Entities;
 using Contracts.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using ProjectsPlanner.Services.Interfaces;
 
 namespace ProjectsPlanner.Services
 {
