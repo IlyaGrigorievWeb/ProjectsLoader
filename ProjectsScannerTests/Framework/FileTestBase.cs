@@ -1,4 +1,4 @@
-﻿namespace ProjectsScannetTests.Framework;
+﻿namespace ProjectsScannerTests.Framework;
 
 public class FileTestBase
 {

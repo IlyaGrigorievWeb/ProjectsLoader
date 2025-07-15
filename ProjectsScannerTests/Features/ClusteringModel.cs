@@ -1,4 +1,4 @@
-namespace ProjectsScannetTests.Features;
+namespace ProjectsScannerTests.Features;
 
 public class ClusteringModel
 {

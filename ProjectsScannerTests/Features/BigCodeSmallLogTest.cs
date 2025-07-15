@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ProjectsScanner.Scanners.ClusteringAnalyzer;
 using ProjectsScanner.Scanners.ProjectsLogs;
-using ProjectsScannetTests.Features;
-using ProjectsScannetTests.Framework;
+using ProjectsScannerTests.Features;
+using ProjectsScannerTests.Framework;
 using Xunit;
 using Xunit.Abstractions;
 

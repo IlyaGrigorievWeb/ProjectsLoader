@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Xunit.Abstractions;
 
-namespace ProjectsScannetTests.Framework;
+namespace ProjectsScannerTests.Framework;
 
 public class IOFilesFixture : IDisposable
 {

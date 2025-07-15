@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsScanner", "Projects
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectLoader", "ProjectLoader\ProjectLoader.csproj", "{ECEFAEEC-8FCE-45ED-A992-287804B6378B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsScannetTests", "ProjectsScannetTests\ProjectsScannetTests.csproj", "{FA57B467-38AA-4EDB-AF2B-674100630D21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsScannerTests", "ProjectsScannerTests\ProjectsScannerTests.csproj", "{FA57B467-38AA-4EDB-AF2B-674100630D21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

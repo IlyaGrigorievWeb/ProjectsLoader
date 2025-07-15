@@ -1,8 +1,8 @@
 ﻿using ProjectsScanner.Scanners.ProjectsLogs;
-using ProjectsScannetTests.Framework;
+using ProjectsScannerTests.Framework;
 using Xunit.Abstractions;
 
-namespace ProjectsScannetTests.Features;
+namespace ProjectsScannerTests.Features;
 
 public class DifferentStaticWordsLogTest : FileTestBase, IClassFixture<IOFilesFixture>
 {
