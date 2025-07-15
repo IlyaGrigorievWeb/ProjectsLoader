@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsLoader", "ProjectsLoader\ProjectsLoader.csproj", "{A7DD8609-164B-4EF7-84C6-60FF25DE25CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsPlanner", "ProjectsPlanner\ProjectsPlanner.csproj", "{A7DD8609-164B-4EF7-84C6-60FF25DE25CB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8C9032D3-E3CE-4D56-AECD-F02CF6D71615}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,7 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storages", "Storages\Storag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsScanner", "ProjectsScanner\ProjectsScanner.csproj", "{F64F9B52-4740-4DEB-81BF-DA43623FFE48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsScannetTests", "ProjectsScannetTests\ProjectsScannetTests.csproj", "{FA57B467-38AA-4EDB-AF2B-674100630D21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectLoader", "ProjectLoader\ProjectLoader.csproj", "{ECEFAEEC-8FCE-45ED-A992-287804B6378B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectsScannerTests", "ProjectsScannerTests\ProjectsScannerTests.csproj", "{FA57B467-38AA-4EDB-AF2B-674100630D21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{F64F9B52-4740-4DEB-81BF-DA43623FFE48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F64F9B52-4740-4DEB-81BF-DA43623FFE48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F64F9B52-4740-4DEB-81BF-DA43623FFE48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECEFAEEC-8FCE-45ED-A992-287804B6378B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECEFAEEC-8FCE-45ED-A992-287804B6378B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECEFAEEC-8FCE-45ED-A992-287804B6378B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECEFAEEC-8FCE-45ED-A992-287804B6378B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FA57B467-38AA-4EDB-AF2B-674100630D21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FA57B467-38AA-4EDB-AF2B-674100630D21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA57B467-38AA-4EDB-AF2B-674100630D21}.Release|Any CPU.ActiveCfg = Release|Any CPU
