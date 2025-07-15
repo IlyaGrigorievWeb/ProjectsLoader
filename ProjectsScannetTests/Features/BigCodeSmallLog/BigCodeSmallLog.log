@@ -1,0 +1,8 @@
+﻿info: Program[0]
+      [02/11/2025 00:13:57] [Thread 1] Executing LoggingFilter (Input: SyntaxNode, Output: IEnumerable`1)
+info: Program[0]
+      [02/11/2025 00:13:58] [Thread 1] Executing LoggingMapper (Input: IEnumerable`1, Output: IEnumerable`1)
+info: Program[0]
+      [02/11/2025 00:13:58] [Thread 1] Executing JsonConverter (Input: IEnumerable`1, Output: String)
+info: Program[0]
+      [02/11/2025 00:13:58] [Thread 1] Executing ConsolePrinter (Input: String, Output: Void)

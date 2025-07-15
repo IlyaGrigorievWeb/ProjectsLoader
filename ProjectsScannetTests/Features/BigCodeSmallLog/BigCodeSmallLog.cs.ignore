@@ -1,0 +1,161 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+
+class BigCodeSmallLog
+{
+    private static readonly ILoggerFactory LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+    {
+        builder.AddConsole();
+    });
+
+    private static readonly ILogger Logger = LoggerFactory.CreateLogger<BigCodeSmallLog>();
+
+    static void Main()
+    {
+        string code = @"
+        public class TestClass {
+            public void TestMethod() {
+                logger.log(""This is a log"");
+                Console.WriteLine(""Not a log"");
+                logger.log(""Another log message"");
+            }
+        }";
+
+        SyntaxTree tree = CSharpSyntaxTree.ParseText(code);
+        SyntaxNode root = tree.GetRoot();
+
+        var filteredLogs = new LoggingFilter(Logger).Process(root);
+        var mappedLogs = new LoggingMapper(Logger).Process(filteredLogs);
+        var jsonLogs = new JsonConverter(Logger).Process(mappedLogs);
+        new ConsolePrinter(Logger).Process(jsonLogs);
+    }
+}
+
+// ======= Chains =======
+
+public class LoggingFilter : IChain<SyntaxNode, IEnumerable<InvocationExpressionSyntax>>
+{
+    private readonly ILogger _logger;
+
+    public LoggingFilter(ILogger logger) => _logger = logger;
+
+    public IEnumerable<InvocationExpressionSyntax> Process(SyntaxNode root)
+    {
+        _logger.LogInformation("[{Time}] [Thread {ThreadId}] Executing {Chain} (Input: {InputType}, Output: {OutputType})",
+            DateTime.Now, Thread.CurrentThread.ManagedThreadId, nameof(LoggingFilter), typeof(SyntaxNode).Name, typeof(IEnumerable<InvocationExpressionSyntax>).Name);
+
+        return root
+            .DescendantNodes()
+            .OfType<InvocationExpressionSyntax>()
+            .Where(node =>
+                node.Expression is MemberAccessExpressionSyntax member &&
+                member.Name.Identifier.Text == "log" &&
+                member.Expression is IdentifierNameSyntax identifier &&
+                identifier.Identifier.Text == "logger"
+            );
+    }
+}
+
+public class LoggingMapper : IChain<IEnumerable<InvocationExpressionSyntax>, IEnumerable<LoggingCall>>
+{
+    private readonly ILogger _logger;
+
+    public LoggingMapper(ILogger logger) => _logger = logger;
+
+    public IEnumerable<LoggingCall> Process(IEnumerable<InvocationExpressionSyntax> logNodes)
+    {
+        _logger.LogInformation("[{Time}] [Thread {ThreadId}] Executing {Chain} (Input: {InputType}, Output: {OutputType})",
+            DateTime.Now, Thread.CurrentThread.ManagedThreadId, nameof(LoggingMapper), typeof(IEnumerable<InvocationExpressionSyntax>).Name, typeof(IEnumerable<LoggingCall>).Name);
+
+        var result = new List<LoggingCall>();
+
+        foreach (var node in logNodes)
+        {
+            var classNode = node.Ancestors().OfType<ClassDeclarationSyntax>().FirstOrDefault();
+            var className = classNode?.Identifier.Text ?? "UnknownClass";
+            var logText = node.ArgumentList.Arguments.ToString();
+            var lineNumber = node.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
+
+            result.Add(new LoggingCall
+            {
+                ClassName = className,
+                TextLog = logText,
+                RowInSourceFile = lineNumber
+            });
+        }
+
+        return result;
+    }
+}
+public class JsonConverter : IChain<IEnumerable<LoggingCall>, string>
+{
+    private readonly ILogger _logger;
+
+    public JsonConverter(ILogger logger) => _logger = logger;
+
+    public string Process(IEnumerable<LoggingCall> input)
+    {
+        _logger.LogInformation("[{Time}] [Thread {ThreadId}] Executing {Chain} (Input: {InputType}, Output: {OutputType})",
+            DateTime.Now, Thread.CurrentThread.ManagedThreadId, nameof(JsonConverter), typeof(IEnumerable<LoggingCall>).Name, typeof(string).Name);
+
+        return JsonSerializer.Serialize(input, new JsonSerializerOptions { WriteIndented = true });
+    }
+}
+public class ConsolePrinter : IChain<string, void>
+{
+    private readonly ILogger _logger;
+
+    public ConsolePrinter(ILogger logger) => _logger = logger;
+
+    public void Process(string input)
+    {
+        _logger.LogInformation("[{Time}] [Thread {ThreadId}] Executing {Chain} (Input: {InputType}, Output: {OutputType})",
+            DateTime.Now, Thread.CurrentThread.ManagedThreadId, nameof(ConsolePrinter), typeof(string).Name, typeof(void).Name);
+
+        Console.WriteLine(input);
+    }
+}
+
+public class LoggingCall
+{
+    public string ClassName { get; set; }
+    public string TextLog { get; set; }
+    public int RowInSourceFile { get; set; }
+}
+
+// ======= Infrastructure =======
+
+public interface IChain<TIn, TOut>
+{
+    TOut Process(TIn input);
+
+    public IChain<TIn, TNextOut> Then<TNextOut>(IChain<TOut, TNextOut> next)
+    {
+        return new CompositeChain<TIn, TOut, TNextOut>(this, next);
+    }
+}
+
+public class CompositeChain<TIn, TMid, TOut> : IChain<TIn, TOut>
+{
+    private readonly IChain<TIn, TMid> _first;
+    private readonly IChain<TMid, TOut> _second;
+
+    public CompositeChain(IChain<TIn, TMid> first, IChain<TMid, TOut> second)
+    {
+        _first = first;
+        _second = second;
+    }
+
+    public TOut Process(TIn input)
+    {
+        return _second.Process(_first.Process(input));
+    }
+}

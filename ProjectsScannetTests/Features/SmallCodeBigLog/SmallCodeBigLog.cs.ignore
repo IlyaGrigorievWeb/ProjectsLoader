@@ -1,0 +1,144 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using ProjectsScanner.Scanners.ProjectsLogs;
+
+public static class Printer
+{
+    public static string Format(LoggerCallNode node)
+    {
+        string formattedLog = node.LogText;
+        for (int i = 0; i < node.Parameters.Count; i++)
+        {
+            string placeholder = $"{{{node.Parameters[i].Item2}}}";
+            string replacement = $"<[{node.Parameters[i].Item2}:[{i}]:{node.Parameters[i].Item1}]>";
+            formattedLog = formattedLog.Replace(placeholder, replacement);
+        }
+        return $"{node.ClassName} {node.MethodName} {formattedLog}";
+    }
+}
+
+public class SmallCodeBigLog
+{
+    public static void RunPrinterExample()
+    {
+        var logNodes = new List<LoggerCallNode>
+        {
+            new LoggerCallNode
+            {
+                ClassName = "UserService",
+                MethodName = "Login",
+                LogText = "User {username} attempted to login with status {status}",
+                Parameters = new List<Tuple<string, string>>
+                {
+                    new Tuple<string, string>("string", "username"),
+                    new Tuple<string, string>("string", "status")
+                }
+            },
+            new LoggerCallNode
+            {
+                ClassName = "PaymentService",
+                MethodName = "ProcessPayment",
+                LogText = "Processing payment of {amount} for user {userId}",
+                Parameters = new List<Tuple<string, string>>
+                {
+                    new Tuple<string, string>("decimal", "amount"),
+                    new Tuple<string, string>("int", "userId")
+                }
+            },
+            new LoggerCallNode
+            {
+                ClassName = "OrderService",
+                MethodName = "CreateOrder",
+                LogText = "Order {orderId} created with total price {totalPrice}",
+                Parameters = new List<Tuple<string, string>>
+                {
+                    new Tuple<string, string>("int", "orderId"),
+                    new Tuple<string, string>("decimal", "totalPrice")
+                }
+            },
+            new LoggerCallNode
+            {
+                ClassName = "AuthService",
+                MethodName = "GenerateToken",
+                LogText = "Generated token for user {userId} with expiration {expiry}",
+                Parameters = new List<Tuple<string, string>>
+                {
+                    new Tuple<string, string>("int", "userId"),
+                    new Tuple<string, string>("DateTime", "expiry")
+                }
+            },
+            new LoggerCallNode
+            {
+                ClassName = "FileService",
+                MethodName = "UploadFile",
+                LogText = "File {fileName} uploaded with size {fileSize} MB",
+                Parameters = new List<Tuple<string, string>>
+                {
+                    new Tuple<string, string>("string", "fileName"),
+                    new Tuple<string, string>("double", "fileSize")
+                }
+            },
+            new LoggerCallNode
+            {
+                ClassName = "InventoryService",
+                MethodName = "UpdateStock",
+                LogText = "Stock updated for product {productId} with new quantity {quantity}",
+                Parameters = new List<Tuple<string, string>>
+                {
+                    new Tuple<string, string>("int", "productId"),
+                    new Tuple<string, string>("int", "quantity")
+                }
+            },
+            new LoggerCallNode
+            {
+                ClassName = "EmailService",
+                MethodName = "SendEmail",
+                LogText = "Email sent to {recipient} with subject {subject}",
+                Parameters = new List<Tuple<string, string>>
+                {
+                    new Tuple<string, string>("string", "recipient"),
+                    new Tuple<string, string>("string", "subject")
+                }
+            },
+            new LoggerCallNode
+            {
+                ClassName = "NotificationService",
+                MethodName = "SendPushNotification",
+                LogText = "Push notification sent to {deviceId} with message {message}",
+                Parameters = new List<Tuple<string, string>>
+                {
+                    new Tuple<string, string>("string", "deviceId"),
+                    new Tuple<string, string>("string", "message")
+                }
+            },
+            new LoggerCallNode
+            {
+                ClassName = "AnalyticsService",
+                MethodName = "TrackEvent",
+                LogText = "Event {eventName} tracked with metadata {metadata}",
+                Parameters = new List<Tuple<string, string>>
+                {
+                    new Tuple<string, string>("string", "eventName"),
+                    new Tuple<string, string>("string", "metadata")
+                }
+            },
+            new LoggerCallNode
+            {
+                ClassName = "CacheService",
+                MethodName = "EvictCache",
+                LogText = "Cache key {cacheKey} evicted at {timestamp}",
+                Parameters = new List<Tuple<string, string>>
+                {
+                    new Tuple<string, string>("string", "cacheKey"),
+                    new Tuple<string, string>("DateTime", "timestamp")
+                }
+            }
+        };
+        
+        foreach (var logNode in logNodes)
+        {
+            Console.WriteLine(Printer.Format(logNode));
+        }
+    }
+}
