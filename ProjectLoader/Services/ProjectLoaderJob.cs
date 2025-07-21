@@ -45,9 +45,17 @@ namespace ProjectLoader.Services
 
                         Log.Information("Task to download file: {Url}", url);
 
-                        await DownloadFile(url, branch);
+                        string sanitizedFileName = await DownloadFile(url, branch);
 
                         Log.Information("Download task completed for: {Url}", url);
+                        
+                        var analizerPath = new { path = $"ProjectLoader/{sanitizedFileName}"};
+                        
+                        string analizerJson = JsonSerializer.Serialize(analizerPath);
+                        
+                        await _database.ListLeftPushAsync("file_download_queue", analizerJson);
+                        
+                        Log.Information("Added file to analizer queue: {Payload}", analizerJson);
                     }
                     else
                     {
@@ -64,7 +72,7 @@ namespace ProjectLoader.Services
             }
         }
 
-        private async Task DownloadFile(string url, string? branchName)
+        private async Task<string> DownloadFile(string url, string? branchName)
         {
             var decodedUrl = Uri.UnescapeDataString(url);
             if (!string.IsNullOrEmpty(branchName) && decodedUrl.Contains("https://github.com/"))
@@ -100,6 +108,8 @@ namespace ProjectLoader.Services
 
                 Log.Information("File from {Url} successfully downloaded and saved as {FileName}.", decodedUrl,
                     sanitizedFileName);
+
+                return sanitizedFileName;
             }
             else
             {
@@ -123,6 +133,8 @@ namespace ProjectLoader.Services
 
                 Log.Information("File from {Url} successfully downloaded and saved as {FileName}.", decodedUrl,
                     sanitizedFileName);
+                
+                return sanitizedFileName;
             }
         }
     }
