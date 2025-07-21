@@ -20,6 +20,14 @@
       dockerfile: ProjectLoader/Dockerfile
     depends_on:
       - redis-queue
+  
+  scaninvoker:
+    image: scaninvoker
+    build:
+      context: .
+      dockerfile: ScanInvoker/Dockerfile
+    depends_on:
+      - redis-queue
       
 
   postgres_db:
