@@ -1,3 +1,4 @@
+using ScanInvoker.Jobs;
 using Serilog;
 using StackExchange.Redis;
 
@@ -28,7 +29,7 @@ builder.Services.AddSingleton<Func<string, IConnectionMultiplexer>>(sp => name =
     };
 });
 
-builder.Services.AddHttpClient();
+builder.Services.AddHostedService<InvokeProjectScanner>();
 
 var host = builder.Build();
 host.Run();
