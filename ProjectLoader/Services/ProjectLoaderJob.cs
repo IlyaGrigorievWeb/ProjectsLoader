@@ -49,13 +49,13 @@ namespace ProjectLoader.Services
 
                         Log.Information("Download task completed for: {Url}", url);
                         
-                        var analizerPath = new { path = $"ProjectLoader/{sanitizedFileName}"};
+                        var analyzerPath = new { path = $"ProjectLoader/{sanitizedFileName}"};
                         
-                        string analizerJson = JsonSerializer.Serialize(analizerPath);
+                        string analyzerJson = JsonSerializer.Serialize(analyzerPath);
                         
-                        await _database.ListLeftPushAsync("file_download_queue", analizerJson);
+                        await _database.ListLeftPushAsync("analyzer_queue", analyzerJson);
                         
-                        Log.Information("Added file to analizer queue: {Payload}", analizerJson);
+                        Log.Information("Added file to analyzer queue: {Payload}", analyzerJson);
                     }
                     else
                     {
