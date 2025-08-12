@@ -15,6 +15,10 @@
   
   projectsloader:
     image: projectsloader
+    environment:
+      - FILES_PATH=/data/projectloader/files
+    volumes:
+      - projectloader-data:/data/projectloader/files
     build:
       context: .
       dockerfile: ProjectLoader/Dockerfile
@@ -23,6 +27,10 @@
   
   scaninvoker:
     image: scaninvoker
+    environment:
+      - FILES_PATH=/data/projectloader/files
+    volumes:
+      - projectloader-data:/data/projectloader/files
     build:
       context: .
       dockerfile: ScanInvoker/Dockerfile
@@ -60,3 +68,4 @@
 
 volumes:
   postgres_data:
+  projectloader-data:

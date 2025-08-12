@@ -9,6 +9,7 @@ namespace ProjectLoader.Services
         private readonly ILogger<ProjectLoaderJob> _logger;
         private readonly IDatabase _database;
         private readonly HttpClient _httpClient;
+        private readonly string _filesDirectory;
 
         public ProjectLoaderJob(ILogger<ProjectLoaderJob> logger,
             Func<string, IConnectionMultiplexer> connectionFactory, HttpClient httpClient)
@@ -17,6 +18,9 @@ namespace ProjectLoader.Services
             var connectionMultiplexer = connectionFactory("queue");
             _database = connectionMultiplexer.GetDatabase();
             _httpClient = httpClient;
+            _filesDirectory = Environment.GetEnvironmentVariable("FILES_PATH") 
+                              ?? "/data/projectloader/files";
+            Directory.CreateDirectory(_filesDirectory);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -45,11 +49,11 @@ namespace ProjectLoader.Services
 
                         Log.Information("Task to download file: {Url}", url);
 
-                        string sanitizedFileName = await DownloadFile(url, branch);
+                        string fullPath = await DownloadFile(url, branch);
 
                         Log.Information("Download task completed for: {Url}", url);
                         
-                        var analyzerPath = new { path = $"ProjectLoader/{sanitizedFileName}"};
+                        var analyzerPath = new { path = $"{fullPath}"};
                         
                         string analyzerJson = JsonSerializer.Serialize(analyzerPath);
                         
@@ -104,12 +108,16 @@ namespace ProjectLoader.Services
                 var sanitizedFileName =
                     $"{decodedUrl.Replace("https://github.com/", "").Replace("/", "_").Replace(":", "_")}.zip";
 
-                await File.WriteAllBytesAsync(sanitizedFileName, fileBytes);
+                var fullPath = Path.GetFullPath(Path.Combine(_filesDirectory, sanitizedFileName));
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+                await File.WriteAllBytesAsync(fullPath, fileBytes);
+                Log.Information("Saved file to {FullPath}", fullPath);
+
 
                 Log.Information("File from {Url} successfully downloaded and saved as {FileName}.", decodedUrl,
                     sanitizedFileName);
 
-                return sanitizedFileName;
+                return fullPath;
             }
             else
             {
@@ -129,12 +137,15 @@ namespace ProjectLoader.Services
 
                 var sanitizedFileName = decodedUrl.Replace("/", "_").Replace(":", "_");
 
-                await File.WriteAllBytesAsync(sanitizedFileName, fileBytes);
+                var fullPath = Path.GetFullPath(Path.Combine(_filesDirectory, sanitizedFileName));
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+                await File.WriteAllBytesAsync(fullPath, fileBytes);
+                Log.Information("Saved file to {FullPath}", fullPath);
 
                 Log.Information("File from {Url} successfully downloaded and saved as {FileName}.", decodedUrl,
                     sanitizedFileName);
                 
-                return sanitizedFileName;
+                return fullPath;
             }
         }
     }

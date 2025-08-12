@@ -14,7 +14,7 @@ builder.Services.AddSerilog(lc => lc
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Information)
     .Enrich.FromLogContext()
-    .WriteTo.File(Path.Join(builder.Environment.ContentRootPath, "logs", "ProjectLoader.log")));
+    .WriteTo.File(Path.Join(builder.Environment.ContentRootPath, "logs", "ScanInvoker.log")));
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     ConnectionMultiplexer.Connect(sp.GetRequiredService<IConfiguration>().GetValue<string>("Redis:Queue")));

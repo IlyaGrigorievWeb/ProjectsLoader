@@ -1,4 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
+RUN mkdir -p /data/projectloader/files && chmod 0777 /data/projectloader/files
 USER $APP_UID
 WORKDIR /app
 

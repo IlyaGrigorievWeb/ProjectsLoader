@@ -36,9 +36,8 @@ public class InvokeProjectScanner : BackgroundService
 
                 var payload = JsonSerializer.Deserialize<JsonElement>(jsonPayload);
                 
-                var relativePath = payload.GetProperty("path").GetString();
-                var absolutePath = Path.Combine(_env.ContentRootPath, relativePath);
-
+                var absolutePath = payload.GetProperty("path").GetString();
+                
                 _logger.LogInformation(File.Exists(absolutePath)
                     ? "Successfully invoke project scanner"
                     : "No project scanner found");
