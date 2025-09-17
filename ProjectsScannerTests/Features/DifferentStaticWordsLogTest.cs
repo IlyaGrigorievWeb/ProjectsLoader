@@ -21,8 +21,8 @@ public class DifferentStaticWordsLogTest : FileTestBase, IClassFixture<IOFilesFi
     [Fact]
     public void GetView()
     {
-        LogsAnalyzer logsAnalyzer = new LogsAnalyzer(_code);
-        var logsNodes = logsAnalyzer.GetLoggingNodes();
+        LogsAnalyzer logsAnalyzer = new LogsAnalyzer();
+        var logsNodes = logsAnalyzer.GetLoggingNodes(_code);
         var result = LogsAnalyzer.GetPatternsHashMap(logsNodes);
         Assert.Equal(6, result.Count());
     }

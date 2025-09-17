@@ -1,8 +1,9 @@
 ﻿using System.Text.RegularExpressions;
+using ProjecrScanner.CLI;
 
 namespace ProjectsScanner.Scanners.ProjectsLogs;
 
-public class LoggerCallNode
+public class LoggerCallNode : LogCallBaseEntry
 {
     public string ClassName { get; set; }
     

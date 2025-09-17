@@ -1,17 +1,18 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ProjectsScanner.Infrastructure;
 
 namespace ProjectsScanner.Scanners.ClusteringAnalyzer;
 
 public class ClusteringAnalyzer<T>(
-    IClusteringDefinition<T> definition,
-    Func<T> newInstanceFunc
-    )
+    IEnumerable<IClusteringDefinition<T>> definitions,
+    Func<T> newInstanceFunc)
+    : IAnalyzer<T>
 {
-    public T Analyse(string code)
+    public T Analyse(string plainText)
     {
-        var tree = CSharpSyntaxTree.ParseText(code);
+        var tree = CSharpSyntaxTree.ParseText(plainText);
 
         var nodeQueue = new Queue<SyntaxNode>();
 
@@ -25,8 +26,11 @@ public class ClusteringAnalyzer<T>(
         while (nodeQueue.Any())
         {
             var node = nodeQueue.Dequeue();
-            
-            definition.ApplyTriggers(node);
+
+            foreach (var definition in definitions)
+            {
+                definition.ApplyTriggers(node);
+            }
 
             foreach (var child in node.DescendantNodes())
             {
@@ -36,8 +40,16 @@ public class ClusteringAnalyzer<T>(
 
         var model = newInstanceFunc();
         
-        definition.Complete(model);
+        foreach (var definition in definitions)
+        {
+            definition.Complete(model);
+        }
 
         return model;
+    }
+
+    public T Analyze(string plainText)
+    {
+        throw new NotImplementedException();
     }
 }

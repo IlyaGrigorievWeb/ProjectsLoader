@@ -24,10 +24,10 @@ public class BigCodeSmallLogTest : FileTestBase, IClassFixture<IOFilesFixture>
     [Fact]
     public void GetView()
     {
-        LogsAnalyzer logsAnalyzer = new LogsAnalyzer(_code);
-        var logsNodes = logsAnalyzer.GetLoggingNodes();
+        LogsAnalyzer logsAnalyzer = new LogsAnalyzer();
+        var logsNodes = logsAnalyzer.GetLoggingNodes(_code);
         var patternsMap = LogsAnalyzer.GetPatternsHashMap(logsNodes);
-        var result = logsAnalyzer.GetPotentialCalls(_logRow); 
+        var result = logsAnalyzer.GetPotentialCalls(_code, _logRow); 
         Assert.Equal(4, result.Count());
     }
 
@@ -50,7 +50,8 @@ public class BigCodeSmallLogTest : FileTestBase, IClassFixture<IOFilesFixture>
                 model.LogInvocationsCount += aggregation.Sum;
             });
 
-        var analyzer = new ClusteringAnalyzer<ClusteringModel>(definition, () => new ClusteringModel());
+        //TODO First try to use ClusteringAnalyzer API. Update this rest when the API be ready
+        var analyzer = new ClusteringAnalyzer<ClusteringModel>(new List<IClusteringDefinition<ClusteringModel>>() {definition}, () => new ClusteringModel());
 
         var codeModel = analyzer.Analyse(_code);
         
