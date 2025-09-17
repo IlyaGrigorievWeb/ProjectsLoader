@@ -136,7 +136,7 @@ public class DotNetProjectScunner<TAnalyzer, TOut>(
             
             foreach (var classBlock in LogsAnalyzer.ExtractClassBlocks(fileText))
             {
-                potentialCalls.Add(analyzer.Analyze(classBlock.Content));
+                potentialCalls.Add(analyzer.Analyse(classBlock.Content));
             
             }
         }

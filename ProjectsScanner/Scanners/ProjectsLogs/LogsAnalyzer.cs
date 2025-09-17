@@ -322,7 +322,7 @@ public class LogsAnalyzer : IAnalyzer<List<LoggerCallNode>>
 
     #endregion
 
-    public List<LoggerCallNode> Analyze(string plainText)
+    public List<LoggerCallNode> Analyse(string plainText)
     {
         return (List<LoggerCallNode>)GetPotentialCalls(plainText, _searchText);
     }

@@ -47,9 +47,4 @@ public class ClusteringAnalyzer<T>(
 
         return model;
     }
-
-    public T Analyze(string plainText)
-    {
-        throw new NotImplementedException();
-    }
 }

@@ -6,5 +6,5 @@
 /// <typeparam name="TOut">Output type</typeparam>
 public interface IAnalyzer<out TOut>
 {
-    TOut Analyze(string plainText);
+    TOut Analyse(string plainText);
 }
