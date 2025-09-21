@@ -33,7 +33,7 @@ class ClusteringDefinition<T> : IClusteringDefinition<T>
 
         public void Complete(T model)
         {
-            resultMappingFunction(model, aggregationState);
+            resultMappingFunction(model, _aggregationState);
         }
     }
 

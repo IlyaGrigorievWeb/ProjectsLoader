@@ -8,6 +8,7 @@ public class DotNetProjectScunner<TAnalyzer, TOut>(
     TAnalyzer analyzer //TODO here an Analyzer must be as part of scunner configuration. Currently we use it per method call, need to change it
     ) : ProjectScunnerBase
     where TAnalyzer : IAnalyzer<TOut>
+    where TOut : IMergeableModel<TOut>
 {
     //private T _analyzer = analyzer;
 
@@ -118,7 +119,7 @@ public class DotNetProjectScunner<TAnalyzer, TOut>(
     }
 
     //TODO First try to use an analyzer from scunners. Currently just example of long-term solution
-    public List<TOut> RunAnalyzer(string root, TAnalyzer analyzer)
+    public TOut? RunAnalyzer(string root)
     {
         var excludedDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -127,20 +128,27 @@ public class DotNetProjectScunner<TAnalyzer, TOut>(
 
         var csFiles = GetTargetFiles(root, excludedDirs);
 
-        var potentialCalls = new List<TOut>();
+        TOut? resultModel = default(TOut);
+        
         foreach (var filePath in csFiles)
         {
-            string relativePath = Path.GetRelativePath(root, filePath).Replace("/", "\\");
             string fileText = File.ReadAllText(filePath);
-            string[] allLines = File.ReadAllLines(filePath);
             
             foreach (var classBlock in LogsAnalyzer.ExtractClassBlocks(fileText))
             {
-                potentialCalls.Add(analyzer.Analyse(classBlock.Content));
-            
+                var classResult = analyzer.Analyse(classBlock.Content);
+
+                if (resultModel == null)
+                {
+                    resultModel = classResult;
+                }
+                else
+                {
+                    resultModel.Merge(classResult);
+                }
             }
         }
 
-        return potentialCalls;
+        return resultModel;
     }
 }

@@ -14,27 +14,11 @@ public class ClusteringAnalyzer<T>(
     {
         var tree = CSharpSyntaxTree.ParseText(plainText);
 
-        var nodeQueue = new Queue<SyntaxNode>();
-
-        // enqueue all class declarations and start from there
-
-        foreach (var classNode in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
+        foreach (var node in tree.GetRoot().DescendantNodesAndSelf())
         {
-            nodeQueue.Enqueue(classNode);
-        }
-
-        while (nodeQueue.Any())
-        {
-            var node = nodeQueue.Dequeue();
-
             foreach (var definition in definitions)
             {
                 definition.ApplyTriggers(node);
-            }
-
-            foreach (var child in node.DescendantNodes())
-            {
-                nodeQueue.Enqueue(child);
             }
         }
 
