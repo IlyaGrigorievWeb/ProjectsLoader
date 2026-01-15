@@ -15,9 +15,25 @@
   
   projectsloader:
     image: projectsloader
+    environment:
+      - FILES_PATH=/data/projectloader/files
+    volumes:
+      - projectloader-data:/data/projectloader/files
     build:
       context: .
       dockerfile: ProjectLoader/Dockerfile
+    depends_on:
+      - redis-queue
+  
+  scaninvoker:
+    image: scaninvoker
+    environment:
+      - FILES_PATH=/data/projectloader/files
+    volumes:
+      - projectloader-data:/data/projectloader/files
+    build:
+      context: .
+      dockerfile: ScanInvoker/Dockerfile
     depends_on:
       - redis-queue
       
@@ -52,3 +68,4 @@
 
 volumes:
   postgres_data:
+  projectloader-data:
