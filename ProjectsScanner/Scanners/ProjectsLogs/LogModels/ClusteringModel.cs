@@ -11,4 +11,6 @@ public class ClusteringModel
     
     public double AverageLogInvocationsPerMethod { get; set; } = 0.0;
     public int LogInvocationsCount { get; set; } = 0;
+
+    public double MeanningfullClassesUsage { get; set; }
 }

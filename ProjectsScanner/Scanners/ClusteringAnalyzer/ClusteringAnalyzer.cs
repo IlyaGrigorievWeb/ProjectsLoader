@@ -1,42 +1,33 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ProjectsScanner.Infrastructure;
 
 namespace ProjectsScanner.Scanners.ClusteringAnalyzer;
 
 public class ClusteringAnalyzer<T>(
-    IClusteringDefinition<T> definition,
-    Func<T> newInstanceFunc
-    )
+    IEnumerable<IClusteringDefinition<T>> definitions,
+    Func<T> newInstanceFunc)
+    : IAnalyzer<T>
 {
-    public T Analyse(string code)
+    public T Analyse(string plainText)
     {
-        var tree = CSharpSyntaxTree.ParseText(code);
+        var tree = CSharpSyntaxTree.ParseText(plainText);
 
-        var nodeQueue = new Queue<SyntaxNode>();
-
-        // enqueue all class declarations and start from there
-
-        foreach (var classNode in tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
+        foreach (var node in tree.GetRoot().DescendantNodesAndSelf())
         {
-            nodeQueue.Enqueue(classNode);
-        }
-
-        while (nodeQueue.Any())
-        {
-            var node = nodeQueue.Dequeue();
-            
-            definition.ApplyTriggers(node);
-
-            foreach (var child in node.DescendantNodes())
+            foreach (var definition in definitions)
             {
-                nodeQueue.Enqueue(child);
+                definition.ApplyTriggers(node);
             }
         }
 
         var model = newInstanceFunc();
         
-        definition.Complete(model);
+        foreach (var definition in definitions)
+        {
+            definition.Complete(model);
+        }
 
         return model;
     }
