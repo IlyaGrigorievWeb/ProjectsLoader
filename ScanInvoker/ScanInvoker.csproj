@@ -26,4 +26,8 @@
     <ItemGroup>
       <Folder Include="logs\" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ProjectsScanner\ProjectsScanner.csproj" />
+    </ItemGroup>
 </Project>

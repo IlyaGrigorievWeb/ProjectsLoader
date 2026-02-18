@@ -1,3 +1,5 @@
+using ScanInvoker.Analyzers;
+using ScanInvoker.Interfaces;
 using ScanInvoker.Jobs;
 using Serilog;
 using StackExchange.Redis;
@@ -28,6 +30,8 @@ builder.Services.AddSingleton<Func<string, IConnectionMultiplexer>>(sp => name =
         _ => throw new ArgumentException("Unknown Redis connection name")
     };
 });
+
+builder.Services.AddSingleton<IProjectAnalyzer, ClusteringProjectAnalyzer>();
 
 builder.Services.AddHostedService<InvokeProjectScanner>();
 
