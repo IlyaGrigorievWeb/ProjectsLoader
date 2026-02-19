@@ -1,6 +1,7 @@
 using ScanInvoker.Analyzers;
 using ScanInvoker.Interfaces;
 using ScanInvoker.Jobs;
+using ScanInvoker.Services;
 using Serilog;
 using StackExchange.Redis;
 
@@ -32,6 +33,8 @@ builder.Services.AddSingleton<Func<string, IConnectionMultiplexer>>(sp => name =
 });
 
 builder.Services.AddSingleton<IProjectAnalyzer, ClusteringProjectAnalyzer>();
+
+builder.Services.AddSingleton<IArchiveService, ArchiveService>();
 
 builder.Services.AddHostedService<InvokeProjectScanner>();
 
