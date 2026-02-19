@@ -5,7 +5,5 @@ namespace ScanInvoker.Interfaces;
 
 public interface IProjectAnalyzer
 {
-    ClassStats RunAnalyzer(string solutionRoot, CancellationToken cancellationToken = default);
-    
-    ProjectStatsClass RunTestAnalyzer(string solutionRoot, CancellationToken cancellationToken = default);
+    ProjectStatsClass RunAnalyzer(string solutionRoot, CancellationToken cancellationToken = default);
 }

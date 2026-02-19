@@ -10,18 +10,21 @@ public class InvokeProjectScanner : BackgroundService
     private readonly IDatabase _database;
     private readonly IHostEnvironment _env;
     private readonly IProjectAnalyzer _projectAnalyzer;
+    private readonly IArchiveService _archiveService;
 
     
     public InvokeProjectScanner(ILogger<InvokeProjectScanner> logger,
         Func<string, IConnectionMultiplexer> connectionFactory,
         IHostEnvironment env,
-        IProjectAnalyzer projectAnalyzer)
+        IProjectAnalyzer projectAnalyzer,
+        IArchiveService archiveService)
     {
         _logger = logger;
         var connectionMultiplexer = connectionFactory("queue");
         _database = connectionMultiplexer.GetDatabase();
         _env = env;
         _projectAnalyzer = projectAnalyzer;
+        _archiveService = archiveService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -42,27 +45,23 @@ public class InvokeProjectScanner : BackgroundService
                 var payload = JsonSerializer.Deserialize<JsonElement>(jsonPayload);
                 
                 var absolutePath = payload.GetProperty("path").GetString();
+                
+                var folderPath = await _archiveService.ExtractAsync(absolutePath, stoppingToken);
 
-                string testPath = "/data/projectloader/files/shadowsocks-windows-4";
-                
-                _logger.LogInformation(File.Exists(absolutePath)
-                    ? "Successfully invoke project scanner"
-                    : "No project scanner found");
-                
-                var analysisResult = await Task.Run(() =>
-                    _projectAnalyzer.RunAnalyzer(testPath, stoppingToken), stoppingToken);
-                
-                var analysisTestResult = await Task.Run(() =>
-                    _projectAnalyzer.RunTestAnalyzer(testPath, stoppingToken), stoppingToken);
-
-                if (analysisResult != null)
+                if (!Directory.Exists(folderPath))
                 {
-                    _logger.LogInformation($"Function count: {analysisResult.FunctionCount} PropertyCount: {analysisResult.PropertyCount}");
-                    _logger.LogInformation($"TotalClassCount: {analysisTestResult.TotalClassCount} " +
-                                           $"LogsClassCount: {analysisTestResult.LogsClassCount}");
+                    _logger.LogInformation("No project found");
+                    throw new FileNotFoundException("No project found", folderPath);
                 }
                 
-                //await _database.ListRemoveAsync("analyzer_queue", jsonPayload, count: 1);
+                var analysisResult = await Task.Run(() =>
+                    _projectAnalyzer.RunAnalyzer(folderPath, stoppingToken), stoppingToken);
+                
+                _logger.LogInformation("The project has been successfully clustered");
+                
+                Directory.Delete(folderPath, true);
+                
+                await _database.ListRemoveAsync("analyzer_queue", jsonPayload, count: 1);
             }
             catch (Exception ex)
             {

@@ -11,28 +11,7 @@ namespace ScanInvoker.Analyzers;
 
 public class ClusteringProjectAnalyzer : IProjectAnalyzer
 {
-    public ClassStats RunAnalyzer(string solutionRoot, CancellationToken cancellationToken = default)
-    {
-        var analyzer =
-            new DotNetProjectScunner<ClusteringAnalyzer<ClassStats>, ClassStats>(
-                new ClusteringAnalyzer<ClassStats>(new List<IClusteringDefinition<ClassStats>>()
-                {
-                    IClusteringDefinition<ClassStats>.Builder()
-                        .Trigger(syntaxNode => syntaxNode is MethodDeclarationSyntax)
-                        .Transform(_ => 1)
-                        .Fold(0, (total, method) => total + method)
-                        .MapResult((model, totalMethods) => model.FunctionCount = totalMethods)
-
-                        .Trigger(syntaxNode => syntaxNode is PropertyDeclarationSyntax)
-                        .Transform(_ => 1)
-                        .Fold(0, (property, total) => total + property)
-                        .MapResult((model, totalProperty) => model.PropertyCount = totalProperty)
-                }, ClassStats.NewInstance));
-        
-        return analyzer.RunAnalyzer(solutionRoot);
-    }
-
-    public ProjectStatsClass RunTestAnalyzer(string solutionRoot, CancellationToken cancellationToken = default)
+    public ProjectStatsClass RunAnalyzer(string solutionRoot, CancellationToken cancellationToken = default)
     {
         var analyzer =
             new DotNetProjectScunner<ClusteringAnalyzer<ProjectStatsClass>, ProjectStatsClass>(
