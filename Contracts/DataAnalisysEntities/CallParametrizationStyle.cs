@@ -1,4 +1,4 @@
-﻿namespace ScanInvoker.Models;
+﻿namespace Contracts.DataAnalisysEntities;
 
 public enum CallParametrizationStyle
 {

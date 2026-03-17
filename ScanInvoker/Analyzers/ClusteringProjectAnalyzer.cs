@@ -1,7 +1,7 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using Contracts.DataAnalisysEntities;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ProjectsLoader.Models;
 using ProjectsScanner.Scanners;
 using ProjectsScanner.Scanners.ClusteringAnalyzer;
 using ScanInvoker.Interfaces;
@@ -57,6 +57,16 @@ public class ClusteringProjectAnalyzer : IProjectAnalyzer
                         .Transform(node => CountAllLogs((ClassDeclarationSyntax)node))
                         .Fold(0, (total, value) => total + value)
                         .MapResult((model, total) => model.TotalLogs = total)
+                        
+                        .Trigger(node => node is CatchClauseSyntax)
+                        .Transform(node => CountLogsInTryCatch((CatchClauseSyntax)node))
+                        .Fold(0, (total, value) => total + value)
+                        .MapResult((model, total) => model.LogsInTryCatch = total)
+
+                        .Trigger(node => node is InvocationExpressionSyntax)
+                        .Transform(node => CountParametersInLog((InvocationExpressionSyntax)node))
+                        .Fold(0, (total, value) => total + value)
+                        .MapResult((model, total) => model.ParametresInLogs = total)
 
                 }, ProjectStatsClass.NewInstance));
         
@@ -177,53 +187,48 @@ public class ClusteringProjectAnalyzer : IProjectAnalyzer
     }
     
     private static CallParametrizationStyle DetermineCallParametrizationStyle(InvocationExpressionSyntax invocation)
+    {
+        var firstArg = GetFirstArgumentExpression(invocation);
+        if (firstArg == null) return CallParametrizationStyle.Other;
+        
+        if (firstArg is InterpolatedStringExpressionSyntax)
+            return CallParametrizationStyle.Interpolation;
+        
+        if (firstArg is LiteralExpressionSyntax literal &&
+            literal.IsKind(SyntaxKind.StringLiteralExpression))
         {
-            var firstArg = GetFirstArgumentExpression(invocation);
-            if (firstArg == null) return CallParametrizationStyle.Other;
-
-            // interpolation $"..."
-            if (firstArg is InterpolatedStringExpressionSyntax)
-                return CallParametrizationStyle.Interpolation;
-
-            // literal string with placeholders "Hello {name}"
-            if (firstArg is LiteralExpressionSyntax literal &&
-                literal.IsKind(SyntaxKind.StringLiteralExpression))
-            {
-                var text = literal.Token.ValueText;
-                if (text.Contains("{") && text.Contains("}"))
-                    return CallParametrizationStyle.Placeholder;
-
-                return CallParametrizationStyle.Other;
-            }
-
-            // concatenation "a" + b
-            if (firstArg is BinaryExpressionSyntax binary &&
-                binary.IsKind(SyntaxKind.AddExpression))
-            {
-                return CallParametrizationStyle.StringConcatenation;
-            }
-
-            // inner invocation like obj.ToString()
-            if (firstArg is InvocationExpressionSyntax innerInvocation)
-            {
-                if (innerInvocation.Expression is MemberAccessExpressionSyntax innerMember &&
-                    string.Equals(innerMember.Name.Identifier.Text, "ToString", StringComparison.OrdinalIgnoreCase))
-                {
-                    return CallParametrizationStyle.JsonSerialization;
-                }
-            }
-
-            // member / identifier / new Obj() / arr[index] -> object passed -> json-style
-            if (firstArg is MemberAccessExpressionSyntax
-                || firstArg is IdentifierNameSyntax
-                || firstArg is ObjectCreationExpressionSyntax
-                || firstArg is ElementAccessExpressionSyntax)
-            {
-                return CallParametrizationStyle.JsonSerialization;
-            }
+            var text = literal.Token.ValueText;
+            if (text.Contains("{") && text.Contains("}"))
+                return CallParametrizationStyle.Placeholder;
 
             return CallParametrizationStyle.Other;
         }
+        
+        if (firstArg is BinaryExpressionSyntax binary &&
+            binary.IsKind(SyntaxKind.AddExpression))
+        {
+            return CallParametrizationStyle.StringConcatenation;
+        }
+        
+        if (firstArg is InvocationExpressionSyntax innerInvocation)
+        {
+            if (innerInvocation.Expression is MemberAccessExpressionSyntax innerMember &&
+                string.Equals(innerMember.Name.Identifier.Text, "ToString", StringComparison.OrdinalIgnoreCase))
+            {
+                return CallParametrizationStyle.JsonSerialization;
+            }
+        }
+        
+        if (firstArg is MemberAccessExpressionSyntax
+            || firstArg is IdentifierNameSyntax
+            || firstArg is ObjectCreationExpressionSyntax
+            || firstArg is ElementAccessExpressionSyntax)
+        {
+            return CallParametrizationStyle.JsonSerialization;
+        }
+
+        return CallParametrizationStyle.Other;
+    }
     
     static int CountInterpolationLogs(ClassDeclarationSyntax classNode)
         => CountLogInvocationsByStyle(classNode, CallParametrizationStyle.Interpolation);
@@ -242,5 +247,137 @@ public class ClusteringProjectAnalyzer : IProjectAnalyzer
     
     static int CountAllLogs(ClassDeclarationSyntax classNode)
         => CountLogInvocations(classNode);
+    
+    static int CountLogsInTryCatch(CatchClauseSyntax catchNode)
+    {
+        if (catchNode == null) return 0;
+        
+        var block = catchNode.Block;
+        if (block == null) return 0;
 
+        var invocations = block.DescendantNodes().OfType<InvocationExpressionSyntax>();
+        int count = 0;
+
+        foreach (var invocation in invocations)
+        {
+            if (IsLogInvocation(invocation))
+                count++;
+        }
+
+        return count;
+    }
+    
+    static int CountParametersInLog(InvocationExpressionSyntax invocation)
+    {
+        if (!IsLogInvocation(invocation))
+            return 0;
+
+        var argsCount = invocation.ArgumentList?.Arguments.Count ?? 0;
+        var firstArg = GetFirstArgumentExpression(invocation);
+        var style = DetermineCallParametrizationStyle(invocation);
+
+        switch (style)
+        {
+            case CallParametrizationStyle.Placeholder:
+            {
+                if (firstArg is LiteralExpressionSyntax lit &&
+                    lit.IsKind(SyntaxKind.StringLiteralExpression))
+                {
+                    int placeholders = CountPlaceholdersInTemplate(lit.Token.ValueText);
+                    return Math.Max(placeholders, Math.Max(0, argsCount - 1));
+                }
+
+                return Math.Max(0, argsCount - 1);
+            }
+
+            case CallParametrizationStyle.Interpolation:
+            {
+                if (firstArg is InterpolatedStringExpressionSyntax interpolated)
+                {
+                    int interpCount = interpolated.Contents
+                        .OfType<InterpolationSyntax>()
+                        .Count();
+
+                    return Math.Max(interpCount, Math.Max(0, argsCount - 1));
+                }
+
+                return Math.Max(0, argsCount - 1);
+            }
+
+            case CallParametrizationStyle.StringConcatenation:
+            {
+                if (firstArg is BinaryExpressionSyntax bin &&
+                    bin.IsKind(SyntaxKind.AddExpression))
+                {
+                    return CountConcatOperands(bin);
+                }
+
+                return Math.Max(0, argsCount - 1);
+            }
+
+            case CallParametrizationStyle.JsonSerialization:
+            {
+                return argsCount > 0 ? Math.Max(1, argsCount - 1) : 0;
+            }
+
+            default:
+                return Math.Max(0, argsCount - 1);
+        }
+    }
+    
+    static int CountPlaceholdersInTemplate(string template)
+    {
+        if (string.IsNullOrEmpty(template))
+            return 0;
+
+        int count = 0;
+
+        for (int i = 0; i < template.Length; i++)
+        {
+            if (template[i] == '{')
+            {
+                if (i + 1 < template.Length && template[i + 1] == '{')
+                {
+                    i++;
+                    continue;
+                }
+
+                int closing = template.IndexOf('}', i + 1);
+                if (closing > i)
+                {
+                    count++;
+                    i = closing;
+                }
+            }
+        }
+
+        return count;
+    }
+    
+    static int CountConcatOperands(BinaryExpressionSyntax binary)
+    {
+        int count = 0;
+
+        void Traverse(ExpressionSyntax expr)
+        {
+            if (expr is BinaryExpressionSyntax bin &&
+                bin.IsKind(SyntaxKind.AddExpression))
+            {
+                Traverse(bin.Left);
+                Traverse(bin.Right);
+            }
+            else
+            {
+                if (!(expr is LiteralExpressionSyntax lit &&
+                      lit.IsKind(SyntaxKind.StringLiteralExpression)))
+                {
+                    count++;
+                }
+            }
+        }
+
+        Traverse(binary);
+
+        return count;
+    }
 }
