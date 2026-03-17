@@ -44,7 +44,7 @@ public class ArchiveService : IArchiveService
         }
         catch
         {
-            throw new Exception("Archive parsing error");
+            throw new Exception($"Archive parsing error. Project = {archivePath}");
         }
     }
 }
