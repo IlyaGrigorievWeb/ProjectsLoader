@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Contracts.DataAnalisysEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Storages.EntitiesStorage;
@@ -13,9 +14,11 @@ using Storages.EntitiesStorage;
 namespace Storages.Migrations
 {
     [DbContext(typeof(PostgresContext))]
-    partial class PostgresContextModelSnapshot : ModelSnapshot
+    [Migration("20260317140333_ADD_NEW_GitHubProjects_TABLE")]
+    partial class ADD_NEW_GitHubProjects_TABLE
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

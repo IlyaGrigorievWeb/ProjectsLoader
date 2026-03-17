@@ -1,4 +1,5 @@
-﻿using Contracts.Entities;
+﻿using Contracts.DataAnalisysEntities;
+using Contracts.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Storages.EntitiesStorage;
@@ -6,6 +7,7 @@ public class PostgresContext : DbContext
 {
     public DbSet<GitHubProject> GitHubProjects { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<ProjectClusteringInfo> ProjectClusteringInfos { get; set; }
 
     public PostgresContext(DbContextOptions<PostgresContext> options) : base(options)
     {
@@ -14,6 +16,9 @@ public class PostgresContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ProjectClusteringInfo>()
+            .Property(x => x.CallParametrizationStylesUsages)
+            .HasColumnType("jsonb");
     }
 
 }
