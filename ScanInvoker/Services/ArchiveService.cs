@@ -12,13 +12,12 @@ public class ArchiveService : IArchiveService
         _logger = logger;
     }
 
-    public async Task<string> ExtractAsync(string archivePath, CancellationToken cancellationToken = default)
+    public async Task<ArchiveExtractionScope> ExtractAsync(string archivePath, CancellationToken cancellationToken = default)
     {
         if (!File.Exists(archivePath))
             throw new FileNotFoundException("Archive not found", archivePath);
 
         var baseDir = Path.GetDirectoryName(archivePath);
-        
         if (baseDir == null)
             throw new Exception("Error when getting the base path");
 
@@ -27,24 +26,33 @@ public class ArchiveService : IArchiveService
             await Task.Run(() =>
             {
                 using var archive = ArchiveFactory.OpenArchive(archivePath);
-                
+
                 foreach (var entry in archive.Entries.Where(e => !e.IsDirectory))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-
                     entry.WriteToDirectory(baseDir);
                 }
-            }, cancellationToken);
-
-            File.Delete(archivePath);
+            }, cancellationToken).ConfigureAwait(false);
             
-            var rootDirectory = Directory.GetDirectories(baseDir).Single();
+            var directories = Directory.GetDirectories(baseDir);
+            if (directories.Length == 0)
+                throw new Exception($"No directories found after extracting archive {archivePath}");
 
-            return rootDirectory;
+            var rootDirectory = directories
+                .Select(d => new DirectoryInfo(d))
+                .OrderByDescending(di => di.CreationTimeUtc)
+                .First()
+                .FullName;
+            
+            return new ArchiveExtractionScope(rootDirectory, archivePath);
         }
-        catch
+        catch (OperationCanceledException)
         {
-            throw new Exception($"Archive parsing error. Project = {archivePath}");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Archive parsing error. Project = {archivePath}. {ex.Message}", ex);
         }
     }
 }

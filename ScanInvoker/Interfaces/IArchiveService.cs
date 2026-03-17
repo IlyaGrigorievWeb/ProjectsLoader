@@ -2,5 +2,5 @@
 
 public interface IArchiveService
 {
-    Task<string> ExtractAsync(string archivePath, CancellationToken cancellationToken = default);
+    Task<ArchiveExtractionScope> ExtractAsync(string archivePath, CancellationToken cancellationToken = default);
 }

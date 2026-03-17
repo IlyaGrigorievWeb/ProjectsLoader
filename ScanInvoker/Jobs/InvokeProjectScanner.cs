@@ -31,64 +31,57 @@ public class InvokeProjectScanner : BackgroundService
     }
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-{
-    while (!stoppingToken.IsCancellationRequested)
     {
-        var jsonPayload = await _database.ListGetByIndexAsync("analyzer_queue", 0);
-
-        string? folderPath = null;
-
-        try
+        while (!stoppingToken.IsCancellationRequested)
         {
+            var jsonPayload = await _database.ListGetByIndexAsync("analyzer_queue", 0);
+
             if (!jsonPayload.HasValue)
             {
                 await Task.Delay(1000, stoppingToken);
                 continue;
             }
 
-            var payload = JsonSerializer.Deserialize<JsonElement>(jsonPayload);
-            var absolutePath = payload.GetProperty("path").GetString();
-
-            folderPath = await _archiveService.ExtractAsync(absolutePath, stoppingToken);
-
-            if (!Directory.Exists(folderPath))
+            try
             {
-                _logger.LogInformation("No project found");
-                throw new FileNotFoundException("No project found", folderPath);
+                var payload = JsonSerializer.Deserialize<JsonElement>(jsonPayload);
+                var absolutePath = payload.GetProperty("path").GetString();
+                
+                await using (var extraction = await _archiveService.ExtractAsync(absolutePath!, stoppingToken))
+                {
+                    var folderPath = extraction.FolderPath;
+
+                    if (!Directory.Exists(folderPath))
+                    {
+                        _logger.LogInformation("No project found");
+                        throw new FileNotFoundException("No project found", folderPath);
+                    }
+
+                    var analysisResult = await Task.Run(() =>
+                        _projectAnalyzer.RunAnalyzer(folderPath, stoppingToken), stoppingToken);
+
+                    _logger.LogInformation(
+                        "The project {Project} has been successfully clustered. {@Stats}",
+                        folderPath,
+                        analysisResult
+                    );
+
+                    var projectClusteringInfo =
+                        await _projectClusteringService.Calculate(analysisResult, stoppingToken);
+
+                    _logger.LogInformation(
+                        "The project math result {@Stats}",
+                        projectClusteringInfo
+                    );
+                    
+                    await _database.ListRemoveAsync("analyzer_queue", jsonPayload, count: 1);
+                }
             }
-
-            var analysisResult = await Task.Run(() =>
-                _projectAnalyzer.RunAnalyzer(folderPath, stoppingToken), stoppingToken);
-
-            _logger.LogInformation(
-                "The project {Project} has been successfully clustered. {@Stats}",
-                folderPath,
-                analysisResult
-            );
-
-            var projectClusteringInfo =
-                await _projectClusteringService.Calculate(analysisResult, stoppingToken);
-
-            _logger.LogInformation(
-                "The project math result {@Stats}",
-                projectClusteringInfo
-            );
-
-            await _database.ListRemoveAsync("analyzer_queue", jsonPayload, count: 1);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to invoke project scanner");
-
-            await _database.ListRemoveAsync("analyzer_queue", jsonPayload, count: 1);
-        }
-        finally
-        {
-            if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
+            catch (Exception ex)
             {
-                Directory.Delete(folderPath, true);
+                _logger.LogError(ex, "Failed to invoke project scanner");
+                await _database.ListRemoveAsync("analyzer_queue", jsonPayload, count: 1);
             }
         }
     }
-}
 }
