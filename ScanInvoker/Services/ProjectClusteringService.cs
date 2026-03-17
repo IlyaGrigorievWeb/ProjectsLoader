@@ -54,8 +54,8 @@ public class ProjectClusteringService : IProjectClusteringService
             ? projectStats.LogsInTryCatch / (double)projectStats.TotalLogs
             : 0.0;
         
-        result.MeaningfulClassesUsage = projectStats.TotalClassCount > 0
-            ? (double)projectStats.LogsClassCount / projectStats.TotalClassCount
+        result.MeaningfulClassesUsage = projectStats.TotalLogs > 0
+            ? (double)projectStats.ClassesWithLogs / projectStats.TotalClassCount
             : 0.0;
         
         result.MidParametersCount = projectStats.TotalLogs > 0

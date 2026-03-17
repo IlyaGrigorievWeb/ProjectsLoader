@@ -14,6 +14,7 @@ public class ProjectStatsClass : IMergeableModel<ProjectStatsClass>
     public int LogsInTryCatch = 0;
     public int ParametresInLogs = 0;
     public int OtherLogs = 0;
+    public int ClassesWithLogs = 0;
     
     
     public static ProjectStatsClass NewInstance() => new ProjectStatsClass();
@@ -30,6 +31,7 @@ public class ProjectStatsClass : IMergeableModel<ProjectStatsClass>
         OtherLogs += model.OtherLogs;
         LogsInTryCatch += model.LogsInTryCatch;
         ParametresInLogs += model.ParametresInLogs;
+        ClassesWithLogs += model.ClassesWithLogs;
     }
     
 }

@@ -67,6 +67,11 @@ public class ClusteringProjectAnalyzer : IProjectAnalyzer
                         .Transform(node => CountParametersInLog((InvocationExpressionSyntax)node))
                         .Fold(0, (total, value) => total + value)
                         .MapResult((model, total) => model.ParametresInLogs = total)
+                    
+                        .Trigger(node => node is ClassDeclarationSyntax)
+                        .Transform(node => HasLogInClass((ClassDeclarationSyntax)node))
+                        .Fold(0, (total, value) => total + value)
+                        .MapResult((model, total) => model.ClassesWithLogs = total)
 
                 }, ProjectStatsClass.NewInstance));
         
@@ -379,5 +384,20 @@ public class ClusteringProjectAnalyzer : IProjectAnalyzer
         Traverse(binary);
 
         return count;
+    }
+    
+    public static int HasLogInClass(ClassDeclarationSyntax classNode)
+    {
+        if (classNode == null) return 0;
+
+        var invocations = classNode.DescendantNodes().OfType<InvocationExpressionSyntax>();
+
+        foreach (var invocation in invocations)
+        {
+            if (IsLogInvocation(invocation))
+                return 1;
+        }
+
+        return 0;
     }
 }
