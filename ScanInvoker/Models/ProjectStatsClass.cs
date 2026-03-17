@@ -11,6 +11,8 @@ public class ProjectStatsClass : IMergeableModel<ProjectStatsClass>
     public int StringConcatenationLogs = 0;
     public int InterpolationLogs = 0;
     public int JsonSerializationLogs = 0;
+    public int LogsInTryCatch = 0;
+    public int ParametresInLogs = 0;
     public int OtherLogs = 0;
     
     
@@ -26,6 +28,8 @@ public class ProjectStatsClass : IMergeableModel<ProjectStatsClass>
         InterpolationLogs += model.InterpolationLogs;
         JsonSerializationLogs += model.JsonSerializationLogs;
         OtherLogs += model.OtherLogs;
+        LogsInTryCatch += model.LogsInTryCatch;
+        ParametresInLogs += model.ParametresInLogs;
     }
     
 }
