@@ -11,13 +11,15 @@ public class InvokeProjectScanner : BackgroundService
     private readonly IHostEnvironment _env;
     private readonly IProjectAnalyzer _projectAnalyzer;
     private readonly IArchiveService _archiveService;
+    private readonly IProjectClusteringService _projectClusteringService;
 
     
     public InvokeProjectScanner(ILogger<InvokeProjectScanner> logger,
         Func<string, IConnectionMultiplexer> connectionFactory,
         IHostEnvironment env,
         IProjectAnalyzer projectAnalyzer,
-        IArchiveService archiveService)
+        IArchiveService archiveService,
+        IProjectClusteringService projectClusteringService)
     {
         _logger = logger;
         var connectionMultiplexer = connectionFactory("queue");
@@ -25,49 +27,68 @@ public class InvokeProjectScanner : BackgroundService
         _env = env;
         _projectAnalyzer = projectAnalyzer;
         _archiveService = archiveService;
+        _projectClusteringService = projectClusteringService;
     }
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+{
+    while (!stoppingToken.IsCancellationRequested)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        var jsonPayload = await _database.ListGetByIndexAsync("analyzer_queue", 0);
+
+        string? folderPath = null;
+
+        try
         {
-            var jsonPayload = await _database.ListGetByIndexAsync("analyzer_queue", 0);
-
-            try
+            if (!jsonPayload.HasValue)
             {
-                if (!jsonPayload.HasValue)
-                {
-                    //Waiting a message in the queue 
-                    await Task.Delay(1000, stoppingToken);
-                    continue;
-                }
-
-                var payload = JsonSerializer.Deserialize<JsonElement>(jsonPayload);
-                
-                var absolutePath = payload.GetProperty("path").GetString();
-                
-                var folderPath = await _archiveService.ExtractAsync(absolutePath, stoppingToken);
-
-                if (!Directory.Exists(folderPath))
-                {
-                    _logger.LogInformation("No project found");
-                    throw new FileNotFoundException("No project found", folderPath);
-                }
-                
-                var analysisResult = await Task.Run(() =>
-                    _projectAnalyzer.RunAnalyzer(folderPath, stoppingToken), stoppingToken);
-                
-                _logger.LogInformation("The project has been successfully clustered");
-                
-                Directory.Delete(folderPath, true);
-                
-                await _database.ListRemoveAsync("analyzer_queue", jsonPayload, count: 1);
+                await Task.Delay(1000, stoppingToken);
+                continue;
             }
-            catch (Exception ex)
+
+            var payload = JsonSerializer.Deserialize<JsonElement>(jsonPayload);
+            var absolutePath = payload.GetProperty("path").GetString();
+
+            folderPath = await _archiveService.ExtractAsync(absolutePath, stoppingToken);
+
+            if (!Directory.Exists(folderPath))
             {
-                await _database.ListRemoveAsync("analyzer_queue", jsonPayload, count: 1);
-                _logger.LogError(ex, "Failed to invoke project scanner");
+                _logger.LogInformation("No project found");
+                throw new FileNotFoundException("No project found", folderPath);
+            }
+
+            var analysisResult = await Task.Run(() =>
+                _projectAnalyzer.RunAnalyzer(folderPath, stoppingToken), stoppingToken);
+
+            _logger.LogInformation(
+                "The project {Project} has been successfully clustered. {@Stats}",
+                folderPath,
+                analysisResult
+            );
+
+            var projectClusteringInfo =
+                await _projectClusteringService.Calculate(analysisResult, stoppingToken);
+
+            _logger.LogInformation(
+                "The project math result {@Stats}",
+                projectClusteringInfo
+            );
+
+            await _database.ListRemoveAsync("analyzer_queue", jsonPayload, count: 1);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to invoke project scanner");
+
+            await _database.ListRemoveAsync("analyzer_queue", jsonPayload, count: 1);
+        }
+        finally
+        {
+            if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
+            {
+                Directory.Delete(folderPath, true);
             }
         }
     }
+}
 }

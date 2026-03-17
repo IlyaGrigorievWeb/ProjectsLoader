@@ -36,6 +36,8 @@ builder.Services.AddSingleton<IProjectAnalyzer, ClusteringProjectAnalyzer>();
 
 builder.Services.AddSingleton<IArchiveService, ArchiveService>();
 
+builder.Services.AddSingleton<IProjectClusteringService, ProjectClusteringService>();
+
 builder.Services.AddHostedService<InvokeProjectScanner>();
 
 var host = builder.Build();
