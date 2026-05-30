@@ -73,6 +73,16 @@ public class ClusteringProjectAnalyzer : IProjectAnalyzer
                         .Fold(0, (total, value) => total + value)
                         .MapResult((model, total) => model.ClassesWithLogs = total)
 
+                        .Trigger(node => node is MethodDeclarationSyntax)
+                        .Transform(node => HasLogInMethod((MethodDeclarationSyntax)node))
+                        .Fold(0, (total, value) => total + value)
+                        .MapResult((model, total) => model.MethodsWithLogs = total)
+
+                        .Trigger(node => node is MethodDeclarationSyntax)
+                        .Transform(node => CountLogsInMethodIfHasLogs((MethodDeclarationSyntax)node))
+                        .Fold(0, (total, value) => total + value)
+                        .MapResult((model, total) => model.TotalLogsInMethodsWithLogs = total)
+
                 }, ProjectStatsClass.NewInstance));
         
         return analyzer.RunAnalyzer(solutionRoot);
@@ -399,5 +409,36 @@ public class ClusteringProjectAnalyzer : IProjectAnalyzer
         }
 
         return 0;
+    }
+
+    public static int HasLogInMethod(MethodDeclarationSyntax methodNode)
+    {
+        if (methodNode == null) return 0;
+
+        var invocations = methodNode.DescendantNodes().OfType<InvocationExpressionSyntax>();
+
+        foreach (var invocation in invocations)
+        {
+            if (IsLogInvocation(invocation))
+                return 1;
+        }
+
+        return 0;
+    }
+
+    public static int CountLogsInMethodIfHasLogs(MethodDeclarationSyntax methodNode)
+    {
+        if (methodNode == null) return 0;
+
+        var invocations = methodNode.DescendantNodes().OfType<InvocationExpressionSyntax>();
+        int count = 0;
+
+        foreach (var invocation in invocations)
+        {
+            if (IsLogInvocation(invocation))
+                count++;
+        }
+
+        return count;
     }
 }

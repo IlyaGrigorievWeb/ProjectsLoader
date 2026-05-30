@@ -46,8 +46,8 @@ public class ProjectClusteringService : IProjectClusteringService
             result.CallParametrizationStylesUsages = dict;
         }
         
-        result.MeanCallsPerMethod = projectStats.TotalClassCount > 0
-            ? (double)projectStats.TotalLogs / projectStats.TotalClassCount
+        result.MeanCallsPerMethod = projectStats.MethodsWithLogs > 0
+            ? (double)projectStats.TotalLogsInMethodsWithLogs / projectStats.MethodsWithLogs
             : 0.0;
         
         result.TryCatchUsage = projectStats.TotalClassCount > 0

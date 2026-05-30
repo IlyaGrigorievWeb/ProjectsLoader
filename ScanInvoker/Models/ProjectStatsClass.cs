@@ -15,10 +15,12 @@ public class ProjectStatsClass : IMergeableModel<ProjectStatsClass>
     public int ParametresInLogs = 0;
     public int OtherLogs = 0;
     public int ClassesWithLogs = 0;
-    
-    
+    public int MethodsWithLogs = 0;
+    public int TotalLogsInMethodsWithLogs = 0;
+
+
     public static ProjectStatsClass NewInstance() => new ProjectStatsClass();
-    
+
     public void Merge(ProjectStatsClass model)
     {
         TotalClassCount += model.TotalClassCount;
@@ -32,6 +34,8 @@ public class ProjectStatsClass : IMergeableModel<ProjectStatsClass>
         LogsInTryCatch += model.LogsInTryCatch;
         ParametresInLogs += model.ParametresInLogs;
         ClassesWithLogs += model.ClassesWithLogs;
+        MethodsWithLogs += model.MethodsWithLogs;
+        TotalLogsInMethodsWithLogs += model.TotalLogsInMethodsWithLogs;
     }
     
 }
