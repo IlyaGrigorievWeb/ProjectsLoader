@@ -93,64 +93,9 @@ public class ClusteringProjectAnalyzer : IProjectAnalyzer
     {
         if (classNode == null) return 0;
 
-        var count = 0;
-        
-        var logMethodNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "LogInformation", "LogWarning", "LogError", "LogDebug", "LogTrace", "LogCritical",
-            "Information", "Warning", "Error", "Debug", "Trace", "Fatal", "Verbose"
-        };
-
-        var invocations = classNode.DescendantNodes().OfType<InvocationExpressionSyntax>();
-
-        foreach (var invocation in invocations)
-        {
-            var expr = invocation.Expression;
-            string methodName = null!;
-            string receiverText = string.Empty;
-
-            if (expr is MemberAccessExpressionSyntax memberAccess)
-            {
-                methodName = memberAccess.Name.ToString();
-                receiverText = memberAccess.Expression.ToString();
-            }
-            else if (expr is MemberBindingExpressionSyntax memberBinding)
-            {
-                methodName = memberBinding.Name.ToString();
-                var cond = invocation.Parent?.AncestorsAndSelf().OfType<ConditionalAccessExpressionSyntax>().FirstOrDefault();
-                receiverText = cond?.Expression.ToString() ?? string.Empty;
-            }
-            else if (expr is IdentifierNameSyntax identifier)
-            {
-                methodName = identifier.Identifier.Text;
-                receiverText = identifier.ToString();
-            }
-            else
-            {
-                methodName = expr.ToString();
-            }
-
-            bool isLogCall = false;
-            
-            if (!string.IsNullOrEmpty(methodName))
-            {
-                if (logMethodNames.Contains(methodName) || methodName.IndexOf("Log", StringComparison.OrdinalIgnoreCase) >= 0)
-                    isLogCall = true;
-            }
-            
-            if (!isLogCall && !string.IsNullOrEmpty(receiverText))
-            {
-                if (receiverText.IndexOf("logger", StringComparison.OrdinalIgnoreCase) >= 0
-                    || receiverText.IndexOf("log", StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    isLogCall = true;
-                }
-            }
-
-            if (isLogCall) count++;
-        }
-
-        return count;
+        return classNode.DescendantNodes()
+            .OfType<InvocationExpressionSyntax>()
+            .Count(IsLogInvocation);
     }
     
     static int CountLogInvocationsByStyle(
@@ -178,22 +123,29 @@ public class ClusteringProjectAnalyzer : IProjectAnalyzer
         return count;
     }
     
+    // MEL extension methods are specific enough to accept on their own.
+    private static readonly HashSet<string> UnambiguousLogMethods = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "LogTrace", "LogDebug", "LogInformation", "LogWarning", "LogError", "LogCritical"
+    };
+
+    // Serilog / NLog / log4net / nopCommerce ILogger level methods. Ambiguous names (many non-loggers
+    // expose Error/Warning/...), so these count as a log only when the receiver looks like a logger.
+    private static readonly HashSet<string> LevelLogMethods = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Log", "Trace", "Debug", "Info", "Information", "Warn", "Warning", "Error", "Critical", "Fatal", "Verbose",
+        "TraceAsync", "DebugAsync", "InfoAsync", "InformationAsync", "WarnAsync", "WarningAsync",
+        "ErrorAsync", "CriticalAsync", "FatalAsync", "VerboseAsync"
+    };
+
     static bool IsLogInvocation(InvocationExpressionSyntax invocation)
     {
-        var expr = invocation.Expression;
+        var (methodName, receiver) = GetInvocationShape(invocation);
+        if (string.IsNullOrEmpty(methodName)) return false;
 
-        if (expr is MemberAccessExpressionSyntax memberAccess)
-        {
-            var name = memberAccess.Name.Identifier.Text;
+        if (UnambiguousLogMethods.Contains(methodName)) return true;
 
-            return name.Contains("Log", StringComparison.OrdinalIgnoreCase)
-                   || name.Equals("Information", StringComparison.OrdinalIgnoreCase)
-                   || name.Equals("Warning", StringComparison.OrdinalIgnoreCase)
-                   || name.Equals("Error", StringComparison.OrdinalIgnoreCase)
-                   || name.Equals("Debug", StringComparison.OrdinalIgnoreCase);
-        }
-
-        return false;
+        return LevelLogMethods.Contains(methodName) && IsLoggerReceiver(receiver);
     }
     
     private static ExpressionSyntax? GetFirstArgumentExpression(InvocationExpressionSyntax invocation)
@@ -203,45 +155,31 @@ public class ClusteringProjectAnalyzer : IProjectAnalyzer
     
     private static CallParametrizationStyle DetermineCallParametrizationStyle(InvocationExpressionSyntax invocation)
     {
-        var firstArg = GetFirstArgumentExpression(invocation);
-        if (firstArg == null) return CallParametrizationStyle.Other;
-        
-        if (firstArg is InterpolatedStringExpressionSyntax)
+        var templateArg = GetMessageTemplateArgument(invocation);
+        if (templateArg == null) return CallParametrizationStyle.Other;
+
+        if (templateArg is InterpolatedStringExpressionSyntax)
             return CallParametrizationStyle.Interpolation;
-        
-        if (firstArg is LiteralExpressionSyntax literal &&
+
+        if (templateArg is LiteralExpressionSyntax literal &&
             literal.IsKind(SyntaxKind.StringLiteralExpression))
         {
-            var text = literal.Token.ValueText;
-            if (text.Contains("{") && text.Contains("}"))
-                return CallParametrizationStyle.Placeholder;
-
-            return CallParametrizationStyle.Other;
+            return HasStructuredPlaceholder(literal.Token.ValueText)
+                ? CallParametrizationStyle.Placeholder
+                : CallParametrizationStyle.Other;
         }
-        
-        if (firstArg is BinaryExpressionSyntax binary &&
+
+        if (templateArg is BinaryExpressionSyntax binary &&
             binary.IsKind(SyntaxKind.AddExpression))
         {
             return CallParametrizationStyle.StringConcatenation;
         }
-        
-        if (firstArg is InvocationExpressionSyntax innerInvocation)
-        {
-            if (innerInvocation.Expression is MemberAccessExpressionSyntax innerMember &&
-                string.Equals(innerMember.Name.Identifier.Text, "ToString", StringComparison.OrdinalIgnoreCase))
-            {
-                return CallParametrizationStyle.JsonSerialization;
-            }
-        }
-        
-        if (firstArg is MemberAccessExpressionSyntax
-            || firstArg is IdentifierNameSyntax
-            || firstArg is ObjectCreationExpressionSyntax
-            || firstArg is ElementAccessExpressionSyntax)
-        {
-            return CallParametrizationStyle.JsonSerialization;
-        }
 
+        if (IsJsonSerializationExpression(templateArg))
+            return CallParametrizationStyle.JsonSerialization;
+
+        // A bare variable / property / object / ToString() passed as the message is an unstructured
+        // message, NOT JSON serialization (the old code mislabeled all of these as JsonSerialization).
         return CallParametrizationStyle.Other;
     }
     
@@ -287,57 +225,122 @@ public class ClusteringProjectAnalyzer : IProjectAnalyzer
         if (!IsLogInvocation(invocation))
             return 0;
 
+        var templateArg = GetMessageTemplateArgument(invocation);
         var argsCount = invocation.ArgumentList?.Arguments.Count ?? 0;
-        var firstArg = GetFirstArgumentExpression(invocation);
         var style = DetermineCallParametrizationStyle(invocation);
 
         switch (style)
         {
             case CallParametrizationStyle.Placeholder:
-            {
-                if (firstArg is LiteralExpressionSyntax lit &&
+                if (templateArg is LiteralExpressionSyntax lit &&
                     lit.IsKind(SyntaxKind.StringLiteralExpression))
-                {
-                    int placeholders = CountPlaceholdersInTemplate(lit.Token.ValueText);
-                    return Math.Max(placeholders, Math.Max(0, argsCount - 1));
-                }
-
+                    return CountPlaceholdersInTemplate(lit.Token.ValueText);
                 return Math.Max(0, argsCount - 1);
-            }
 
             case CallParametrizationStyle.Interpolation:
-            {
-                if (firstArg is InterpolatedStringExpressionSyntax interpolated)
-                {
-                    int interpCount = interpolated.Contents
-                        .OfType<InterpolationSyntax>()
-                        .Count();
-
-                    return Math.Max(interpCount, Math.Max(0, argsCount - 1));
-                }
-
+                if (templateArg is InterpolatedStringExpressionSyntax interpolated)
+                    return interpolated.Contents.OfType<InterpolationSyntax>().Count();
                 return Math.Max(0, argsCount - 1);
-            }
 
             case CallParametrizationStyle.StringConcatenation:
-            {
-                if (firstArg is BinaryExpressionSyntax bin &&
+                if (templateArg is BinaryExpressionSyntax bin &&
                     bin.IsKind(SyntaxKind.AddExpression))
-                {
                     return CountConcatOperands(bin);
-                }
-
                 return Math.Max(0, argsCount - 1);
-            }
-
-            case CallParametrizationStyle.JsonSerialization:
-            {
-                return argsCount > 0 ? Math.Max(1, argsCount - 1) : 0;
-            }
 
             default:
                 return Math.Max(0, argsCount - 1);
         }
+    }
+
+    private static (string methodName, string receiver) GetInvocationShape(InvocationExpressionSyntax invocation)
+    {
+        switch (invocation.Expression)
+        {
+            case MemberAccessExpressionSyntax memberAccess:
+                return (memberAccess.Name.Identifier.Text, memberAccess.Expression.ToString());
+
+            case MemberBindingExpressionSyntax memberBinding:
+                var conditional = invocation.Parent?
+                    .AncestorsAndSelf()
+                    .OfType<ConditionalAccessExpressionSyntax>()
+                    .FirstOrDefault();
+                return (memberBinding.Name.Identifier.Text, conditional?.Expression.ToString() ?? string.Empty);
+
+            default:
+                return (null, string.Empty);
+        }
+    }
+
+    private static bool IsLoggerReceiver(string receiver)
+    {
+        if (string.IsNullOrEmpty(receiver)) return false;
+
+        var segment = receiver;
+
+        int dot = segment.LastIndexOf('.');
+        if (dot >= 0) segment = segment.Substring(dot + 1);
+
+        int paren = segment.IndexOf('(');
+        if (paren >= 0) segment = segment.Substring(0, paren);
+
+        int generic = segment.IndexOf('<');
+        if (generic >= 0) segment = segment.Substring(0, generic);
+
+        segment = segment.Trim().TrimStart('_').ToLowerInvariant();
+
+        return segment is "log" or "logger" or "logging"
+               || segment.EndsWith("logger", StringComparison.Ordinal);
+    }
+
+    private static ExpressionSyntax GetMessageTemplateArgument(InvocationExpressionSyntax invocation)
+    {
+        var argList = invocation.ArgumentList;
+        if (argList == null || argList.Arguments.Count == 0) return null;
+
+        // MEL overloads place an Exception (and sometimes an EventId/LogLevel) before the message
+        // template, so the template is the first string-literal or interpolated argument, not arg[0].
+        foreach (var arg in argList.Arguments)
+            if (arg.Expression is LiteralExpressionSyntax lit &&
+                lit.IsKind(SyntaxKind.StringLiteralExpression))
+                return arg.Expression;
+
+        foreach (var arg in argList.Arguments)
+            if (arg.Expression is InterpolatedStringExpressionSyntax)
+                return arg.Expression;
+
+        return argList.Arguments[0].Expression;
+    }
+
+    private static bool HasStructuredPlaceholder(string template)
+    {
+        if (string.IsNullOrEmpty(template)) return false;
+
+        for (int i = 0; i < template.Length - 1; i++)
+        {
+            if (template[i] != '{') continue;
+            if (template[i + 1] == '{') { i++; continue; }   // escaped {{
+
+            int close = template.IndexOf('}', i + 1);
+            if (close > i + 1) return true;                   // {something}
+        }
+
+        return false;
+    }
+
+    private static bool IsJsonSerializationExpression(ExpressionSyntax expression)
+    {
+        if (expression is not InvocationExpressionSyntax invocation)
+            return false;
+
+        var name = invocation.Expression switch
+        {
+            MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.Text,
+            IdentifierNameSyntax identifier => identifier.Identifier.Text,
+            _ => string.Empty
+        };
+
+        return name is "Serialize" or "SerializeObject" or "ToJson";
     }
     
     static int CountPlaceholdersInTemplate(string template)

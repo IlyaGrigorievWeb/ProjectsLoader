@@ -202,26 +202,23 @@ public class LogsAnalyzer : IAnalyzer<List<LoggerCallNode>>
     public static List<ClassBlock> ExtractClassBlocks(string code) //TODO couldn't be static refactor it
     {
         var result = new List<ClassBlock>();
-        var classRegex = new Regex(@"(class|record|struct)\s+([a-zA-Z0-9_]+)\s*(?:[:{])", RegexOptions.Compiled);
-        var matches = classRegex.Matches(code);
 
-        foreach (Match match in matches)
+        // Textual brace counting breaks on C# 12 body-less declarations ("class Foo : Bar;"),
+        // on braces inside string literals/comments and on generic type names, so the file is
+        // sliced with Roslyn - the same parser the analyzers already apply to each block.
+        var root = CSharpSyntaxTree.ParseText(code).GetRoot();
+
+        foreach (var typeDeclaration in root.DescendantNodes().OfType<TypeDeclarationSyntax>())
         {
-            int start = match.Index;
-            string className = match.Groups[2].Value;
+            // Parity with the previous regex: class/record/struct only, interfaces are skipped.
+            if (typeDeclaration is InterfaceDeclarationSyntax)
+                continue;
 
-            int braceLevel = 0;
-            int i = start;
-            for (; i < code.Length; i++)
+            result.Add(new ClassBlock
             {
-                if (code[i] == '{') braceLevel++;
-                else if (code[i] == '}') braceLevel--;
-
-                if (braceLevel == 0 && code[i] == '}') break;
-            }
-
-            string classContent = code.Substring(start, i - start + 1);
-            result.Add(new ClassBlock { Name = className, Content = classContent });
+                Name = typeDeclaration.Identifier.Text,
+                Content = typeDeclaration.ToString()
+            });
         }
 
         return result;

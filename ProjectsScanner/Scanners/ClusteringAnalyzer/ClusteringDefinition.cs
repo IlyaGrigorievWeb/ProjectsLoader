@@ -20,6 +20,7 @@ class ClusteringDefinition<T> : IClusteringDefinition<T>
         Action<T, TAgg> resultMappingFunction
     ) : ITrigger
     {
+        private readonly TAgg _seed = aggregationState;
         private TAgg _aggregationState = aggregationState;
 
         public void Apply(SyntaxNode node)
@@ -34,6 +35,7 @@ class ClusteringDefinition<T> : IClusteringDefinition<T>
         public void Complete(T model)
         {
             resultMappingFunction(model, _aggregationState);
+            _aggregationState = _seed;   // state lives for exactly one Analyse; project totals are built by Merge
         }
     }
 
